@@ -26,7 +26,7 @@ class AgentResponse(BaseModel):
     is_interview_ended: bool = False
     
 class FeedbackStructure(BaseModel):
-    score: int = Field(..., ge=1, le=10, description="Overall performance score 1-10")
-    feedback: str = Field(..., description="Detailed feedback on the interview performance")
+    score: int = Field(..., ge=0, le=100, description="Overall performance score 0-100")
+    summary: str = Field(..., description="Detailed executive summary of the interview performance")
     strengths: List[str] = Field(..., description="List of candidates strengths")
     improvements: List[str] = Field(..., description="List of areas for improvement")

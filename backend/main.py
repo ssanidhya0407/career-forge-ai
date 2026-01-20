@@ -61,20 +61,10 @@ async def chat(req: UserResponse):
     # Convert our history to Pydantic AI format if needed, or just pass the strict list.
     # Pydantic AI `run` accepts `message_history` argument.
     
-    # We'll need to construct the history for the agent.
-    # Pydantic AI uses its own message types.
-    from pydantic_ai.messages import ModelMessage, ModelResponse, UserContent, TextPart
-    
     # Construct history
-    history = []
-    for msg in state.conversation_history[:-1]: # exclude the one we just added? No, exclude nothing, but we need to pass PREVIOUS history
-        if msg.role == "user":
-            history.append(ModelMessage(parts=[TextPart(msg.content)], kind='user')) # kind='user' is implied? No 'ModelMessage' is base.
-            # Actually simplest is to just pass a list of messages if the library supports it, or let the agent handle it.
-            # Looking at pydantic-ai docs (mental model), `run` takes `message_history`.
-            pass 
-            # Re-implementation: Pydantic AI 0.4+ `run` returns a result that contains `new_messages`.
-            # We need to persist that.
+    # Simply appending the new user message to state history is enough, 
+    # we will pass the full transcript in the prompt to ensure context.
+    pass
             
     # Correction: For this MVP, let's just append the conversation as text to the prompt if we don't have perfect history reconstruction type mapping handy,
     # OR better: use the `message_history` argument correctly.
@@ -105,8 +95,12 @@ async def chat(req: UserResponse):
     state.conversation_history.append(Message(role="model", content=response.output))
     return {"message": response.output, "is_interview_ended": False}
 
+class FeedbackRequest(BaseModel):
+    session_id: str
+
 @app.post("/api/interview/feedback")
-async def get_feedback(session_id: str):
+async def get_feedback(req: FeedbackRequest):
+    session_id = req.session_id
     if session_id not in sessions:
         raise HTTPException(status_code=404, detail="Session not found")
     state = sessions[session_id]

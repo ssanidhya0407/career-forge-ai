@@ -12,7 +12,8 @@ load_dotenv()
 os.environ["OPENAI_BASE_URL"] = "https://openrouter.ai/api/v1"
 os.environ["OPENAI_API_KEY"] = os.getenv("OPENROUTER_API_KEY", "")
 
-model = OpenAIModel('meta-llama/llama-3.3-70b-instruct:free')
+# Using Gemini 2.0 Flash (Free) for better tool support and speed
+model = OpenAIModel('google/gemini-2.0-flash-exp:free')
 
 system_prompt = """
 You are an expert AI Interview Coach named 'CareerForge'.
