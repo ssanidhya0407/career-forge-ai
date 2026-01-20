@@ -86,10 +86,8 @@ async def chat(req: UserResponse):
         return {"message": response.output, "is_interview_ended": True}
 
     response = await interview_agent.run(
-        f"The user says: '{req.content}'. Continue the interview. Respond to their answer and ask the next question.",
+        f"The user says: '{req.content}'",
         deps=state.interview_config,
-        # message_history=... # We'll omit proper history injection for this simple text-based context approach first 
-        # to avoid type errors without browsing docs. The agent is strictly prompt driven here.
     )
     
     state.conversation_history.append(Message(role="model", content=response.output))
@@ -114,12 +112,16 @@ async def get_feedback(req: FeedbackRequest):
     # Manual JSON parsing since we disabled tool-based structural output
     import json
     try:
-        # Clean potential markdown fences
-        clean_json = result.data.replace("```json", "").replace("```", "").strip()
+        # Access the raw string output from the agent
+        content = result.output
+        
+        # Clean potential markdown fences if present
+        clean_json = content.replace("```json", "").replace("```", "").strip()
         data = json.loads(clean_json)
         return data
     except Exception as e:
-        print(f"JSON Parsing Error: {e}. Output: {result.data}")
+        print(f"JSON Parsing Error: {e}. Content: {result.output}")
+        # Fallback
         # Fallback
         return {
             "score": 50,
@@ -127,5 +129,3 @@ async def get_feedback(req: FeedbackRequest):
             "strengths": ["Completed the interview"],
             "improvements": ["System error in report generation"]
         }
-
-```
