@@ -45,8 +45,18 @@ interview_agent = Agent(
 def add_context(ctx: RunContext[InterviewConfig]):
     return f"You are interviewing a candidate for a {ctx.deps.experience_level} {ctx.deps.role} position. Focus on {ctx.deps.topic or 'general competency'}."
 
+# Fallback to standard prompt-based JSON for better model compatibility (Free models often fail tool use)
 feedback_agent = Agent(
     model,
-    output_type=FeedbackStructure,
-    system_prompt="You are an expert interview evaluator. Analyze the transcript provided and generate structured feedback."
+    # output_type=FeedbackStructure, # Removed to avoid tool use limits on free models
+    system_prompt="""You are an expert interview evaluator. 
+    Analyze the transcript provided and generate a detailed report in STRICT JSON format.
+    The JSON must exactly match this structure:
+    {
+        "score": (integer 0-100),
+        "summary": (string, detailed executive summary),
+        "strengths": (list of strings),
+        "improvements": (list of strings)
+    }
+    Do not output markdown code blocks. Just the raw JSON string."""
 )

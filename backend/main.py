@@ -106,9 +106,26 @@ async def get_feedback(req: FeedbackRequest):
     state = sessions[session_id]
     
     transcript = "\n".join([f"{m.role.upper()}: {m.content}" for m in state.conversation_history])
-    
+    # Get feedback (Prompt-based JSON)
     result = await feedback_agent.run(
-        f"Here is the transcript of the interview:\n\n{transcript}\n\nPlease provide detailed feedback.",
+        f"Here is the interview transcript:\\n{transcript}"
     )
     
-    return result.data
+    # Manual JSON parsing since we disabled tool-based structural output
+    import json
+    try:
+        # Clean potential markdown fences
+        clean_json = result.data.replace("```json", "").replace("```", "").strip()
+        data = json.loads(clean_json)
+        return data
+    except Exception as e:
+        print(f"JSON Parsing Error: {e}. Output: {result.data}")
+        # Fallback
+        return {
+            "score": 50,
+            "summary": "Could not parse detailed feedback. However, the interview is complete.",
+            "strengths": ["Completed the interview"],
+            "improvements": ["System error in report generation"]
+        }
+
+```
