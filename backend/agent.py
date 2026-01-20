@@ -7,7 +7,6 @@ from models import InterviewConfig
 load_dotenv()
 
 # Native Mistral AI Model
-# Relying on MISTRAL_API_KEY environment variable being set
 model = MistralModel('open-mistral-7b')
 
 system_prompt = """
@@ -41,7 +40,7 @@ interview_agent = Agent(
 def add_context(ctx: RunContext[InterviewConfig]):
     return f"You are interviewing a candidate for a {ctx.deps.experience_level} {ctx.deps.role} position. Focus on {ctx.deps.topic or 'general competency'}."
 
-# Fallback to standard prompt-based JSON for better model compatibility
+# Feedback Generation Agent
 feedback_agent = Agent(
     model,
     system_prompt="""You are an expert interview evaluator. 

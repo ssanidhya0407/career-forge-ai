@@ -14,7 +14,7 @@ interface Message {
     content: string;
 }
 
-// Check for browser support safely
+// Browser Speech Recognition Support
 const SpeechRecognition = typeof window !== 'undefined' ? (window as any).webkitSpeechRecognition || (window as any).SpeechRecognition : null;
 
 function InterviewContent() {

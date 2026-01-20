@@ -16,7 +16,7 @@ app.add_middleware(
     allow_headers=["*"],
 )
 
-# In-memory session store (simplify for MVP)
+# In-memory session store
 sessions: Dict[str, InterviewState] = {}
 
 class StartSessionRequest(BaseModel):
@@ -28,7 +28,7 @@ async def start_interview(req: StartSessionRequest):
     state = InterviewState(interview_config=req.config)
     sessions[session_id] = state
     
-    # Start the conversation with an initial greeting/question from the agent
+    # Start the conversation
     # We trigger the agent with a "start" signal
     response = await interview_agent.run(
         "Please start the interview by introducing yourself and asking the first question.",
@@ -37,7 +37,7 @@ async def start_interview(req: StartSessionRequest):
     
     state.conversation_history.append(Message(role="model", content=response.output))
     
-    return {"session_id": session_id, "message": response.output} # response.data is str
+    return {"session_id": session_id, "message": response.output}
 
 @app.post("/api/interview/chat")
 async def chat(req: UserResponse):
@@ -52,27 +52,7 @@ async def chat(req: UserResponse):
     state.conversation_history.append(Message(role="user", content=req.content))
     state.question_count += 1
     
-    # Generate Agent Response
-    # We pass the history context implicitly or explicitly. 
-    # Pydantic AI manages history if we use the same `result` object, but here we are stateless between requests in the agent object itself, 
-    # so we need to pass history. 
-    # Pydantic AI's `run` takes `message_history`.
-    
-    # Convert our history to Pydantic AI format if needed, or just pass the strict list.
-    # Pydantic AI `run` accepts `message_history` argument.
-    
-    # Construct history
-    # Simply appending the new user message to state history is enough, 
-    # we will pass the full transcript in the prompt to ensure context.
-    pass
-            
-    # Correction: For this MVP, let's just append the conversation as text to the prompt if we don't have perfect history reconstruction type mapping handy,
-    # OR better: use the `message_history` argument correctly.
-    # We will skip complex history reconstruction and just push the prompt with context for now, 
-    # OR better: accumulate messages in the `Result` object if we could keep it in memory.
-    # Since we use a simple dict, we can try to store the `agent_state` if possible.
-    
-    # Simpler approach for MVP: Feed the last few turns or full transcript as context in the prompt.
+    # Feed conversation context to the prompt
     transcript = "\n".join([f"{m.role}: {m.content}" for m in state.conversation_history])
     
     if state.question_count >= state.max_questions:
@@ -109,20 +89,17 @@ async def get_feedback(req: FeedbackRequest):
         f"Here is the interview transcript:\\n{transcript}"
     )
     
-    # Manual JSON parsing since we disabled tool-based structural output
+    # Manual JSON parsing
     import json
     try:
-        # Access the raw string output from the agent
         content = result.output
         
-        # Clean potential markdown fences if present
+        # Clean potential markdown fences
         clean_json = content.replace("```json", "").replace("```", "").strip()
         data = json.loads(clean_json)
         return data
     except Exception as e:
-        print(f"JSON Parsing Error: {e}. Content: {result.output}")
-        # Fallback
-        # Fallback
+        print(f"JSON Parsing Error: {e}")
         return {
             "score": 50,
             "summary": "Could not parse detailed feedback. However, the interview is complete.",

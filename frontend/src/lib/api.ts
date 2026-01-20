@@ -6,7 +6,7 @@ console.log("🚀 API Configuration Loaded:", API_URL);
 
 export const api = axios.create({
     baseURL: API_URL,
-    timeout: 120000, // 2 minutes (LLM generation can be slow)
+    timeout: 120000,
     headers: {
         'Content-Type': 'application/json',
     },
