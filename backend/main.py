@@ -83,7 +83,20 @@ async def get_feedback(req: FeedbackRequest):
         raise HTTPException(status_code=404, detail="Session not found")
     state = sessions[session_id]
     
+    # Prepare transcript
     transcript = "\n".join([f"{m.role.upper()}: {m.content}" for m in state.conversation_history])
+    
+    # Check if user actually participated (naive check)
+    user_word_count = sum(len(m.content.split()) for m in state.conversation_history if m.role == "user")
+    
+    if user_word_count < 10:
+        return {
+            "score": 10,
+            "summary": "The interview was too short or lacked candidate participation to provide a meaningful score.",
+            "strengths": ["Attendance"],
+            "improvements": ["Please answer the questions provided.", "Provide more detailed responses."]
+        }
+
     # Get feedback (Prompt-based JSON)
     result = await feedback_agent.run(
         f"Here is the interview transcript:\\n{transcript}"

@@ -45,6 +45,12 @@ feedback_agent = Agent(
     model,
     system_prompt="""You are an expert interview evaluator. 
     Analyze the transcript provided and generate a detailed report in STRICT JSON format.
+    
+    SCORING RULES:
+    1. If the candidate provides short, one-word, or empty answers, Score = 0-20.
+    2. If the candidate says "I don't know" repeatedly, Score = 30-40.
+    3. If the transcript is empty or mostly system/AI text, Score = 0.
+    
     The JSON must exactly match this structure:
     {
         "score": (integer 0-100),
