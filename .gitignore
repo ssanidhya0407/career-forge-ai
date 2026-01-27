@@ -12,3 +12,4 @@ out/
 
 # User specific
 .vscode/
+backend/serviceAccountKey.json

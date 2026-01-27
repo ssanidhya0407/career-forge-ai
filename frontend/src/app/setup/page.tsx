@@ -1,173 +1,375 @@
 "use client";
 
-import { useState } from "react";
+import { useState, useRef, useEffect } from "react";
 import { useRouter } from "next/navigation";
-import { api } from "@/lib/api";
-import { motion } from "framer-motion";
-import { ChevronRight, Briefcase, GraduationCap, Code, ArrowLeft, BrainCircuit } from "lucide-react";
-import { Logo } from "@/components/ui/logo";
 import Link from "next/link";
+import { startInterview, getSettings } from "@/lib/api";
+import { motion, AnimatePresence } from "framer-motion";
+import { ChevronLeft, ArrowRight, Edit2, Check, FileText, Briefcase, Sparkles, Upload, X, ChevronDown } from "lucide-react";
+import { useAuth } from "@/components/AuthProvider";
+import clsx from "clsx";
+
+const ROLES = ["Software Engineer", "Frontend", "Backend", "Full Stack", "Data Scientist", "Product Manager", "DevOps"];
+const LEVELS = ["Intern", "Junior", "Mid-Level", "Senior", "Lead"];
+const TYPES: Array<"Mixed" | "Behavioral" | "Technical" | "System Design"> = ["Mixed", "Behavioral", "Technical", "System Design"];
 
 export default function SetupPage() {
     const router = useRouter();
+    const { isLoggedIn } = useAuth();
     const [loading, setLoading] = useState(false);
+    const [step, setStep] = useState(0);
+    const [resumeFile, setResumeFile] = useState<File | null>(null);
+    const fileInputRef = useRef<HTMLInputElement>(null);
+
     const [config, setConfig] = useState({
         role: "Software Engineer",
-        experience_level: "Junior",
-        topic: "General"
+        experience_level: "Mid-Level",
+        interview_type: "Mixed" as "Mixed" | "Behavioral" | "Technical" | "System Design",
+        resume_context: "",
+        job_description: "",
+        max_questions: 5,
+        enable_timer: false,
+        time_per_question: 120,
+        language: "en"
     });
 
+    const [isNavExpanded, setIsNavExpanded] = useState(false);
+
+    useEffect(() => {
+        if (isLoggedIn) {
+            getSettings().then(settings => {
+                setConfig(prev => ({
+                    ...prev,
+                    enable_timer: settings.enable_timer,
+                    time_per_question: settings.time_per_question,
+                    language: settings.language
+                }));
+            }).catch(e => console.error("Failed to load settings:", e));
+        }
+    }, [isLoggedIn]);
+
+    const handleFileUpload = (e: React.ChangeEvent<HTMLInputElement>) => {
+        const file = e.target.files?.[0];
+        if (file) {
+            setResumeFile(file);
+            // Read file content for context
+            const reader = new FileReader();
+            reader.onload = (event) => {
+                setConfig({ ...config, resume_context: event.target?.result as string || "" });
+            };
+            reader.readAsText(file);
+        }
+    };
+
     const handleStart = async () => {
+        if (!isLoggedIn) {
+            localStorage.setItem("pendingSessionConfig", JSON.stringify(config));
+            router.push("/auth/register?flow=setup");
+            return;
+        }
         setLoading(true);
         try {
-            const data = await api.post("/api/interview/start", { config });
-            router.push(`/interview?session_id=${data.data.session_id}`);
-        } catch (error) {
-            console.error("Failed to start", error);
-            alert("Failed to start interview. Please check backend.");
+            const data = await startInterview(config);
+            router.push(`/interview?session_id=${data.session_id}`);
+        } catch {
+            alert("Connection error.");
         } finally {
             setLoading(false);
         }
     };
 
-    return (
-        <div className="min-h-screen bg-background text-foreground overflow-x-hidden selection:bg-primary/20 selection:text-foreground relative">
+    const STEPS = ["Role", "Level", "Style", "AI Context", "Summary"];
 
-            {/* Navbar - Sticky Glass (Consistent with Landing) */}
-            <nav className="fixed top-0 inset-x-0 z-50 px-6 py-4">
-                <div className="max-w-5xl mx-auto glass rounded-full px-6 py-3 flex justify-between items-center shadow-lg shadow-black/5">
-                    <Link href="/" className="flex items-center gap-2 hover:opacity-80 transition-opacity">
-                        <Logo className="w-8 h-8 text-primary" />
-                        <span className="font-semibold text-lg tracking-tight">CareerForge.ai</span>
-                    </Link>
-                    <div className="hidden md:flex items-center gap-6 text-sm font-medium text-muted-foreground">
-                        <span className="flex items-center gap-1.5 bg-secondary px-3 py-1 rounded-full text-xs">
-                            <BrainCircuit className="w-3 h-3 text-primary" /> Setup Mode
-                        </span>
-                    </div>
-                    <Link href="/" className="text-sm font-medium text-muted-foreground hover:text-foreground transition-colors flex items-center gap-1">
-                        <ArrowLeft className="w-4 h-4" /> Back to Home
-                    </Link>
-                </div>
-            </nav>
-
-            {/* Background Glows */}
-            <div className="fixed inset-0 pointer-events-none">
-                <div className="absolute top-[-10%] right-[-10%] w-[600px] h-[600px] bg-primary/10 rounded-full blur-[120px]" />
-                <div className="absolute bottom-[-10%] left-[-10%] w-[600px] h-[600px] bg-blue-500/10 rounded-full blur-[120px]" />
-            </div>
-
-            <div className="relative pt-32 pb-20 px-6 flex flex-col items-center justify-center min-h-screen">
-                <motion.div
-                    initial={{ opacity: 0, scale: 0.95, y: 20 }}
-                    animate={{ opacity: 1, scale: 1, y: 0 }}
-                    transition={{ duration: 0.5, ease: [0.16, 1, 0.3, 1] }}
-                    className="w-full max-w-lg z-10"
-                >
-                    <div className="text-center mb-10">
-                        <motion.div
-                            initial={{ scale: 0.8, opacity: 0 }}
-                            animate={{ scale: 1, opacity: 1 }}
-                            transition={{ delay: 0.1, duration: 0.5 }}
-                            className="bg-gradient-to-br from-primary/20 to-blue-500/20 w-20 h-20 rounded-3xl mx-auto flex items-center justify-center mb-6 shadow-xl shadow-primary/10 border border-white/10 backdrop-blur-md"
-                        >
-                            <Briefcase className="w-10 h-10 text-primary" />
-                        </motion.div>
-                        <h1 className="text-4xl md:text-5xl font-bold tracking-tight mb-4 text-gradient">Configure Session</h1>
-                        <p className="text-muted-foreground text-lg max-w-sm mx-auto">Customize your AI interviewer persona to match your target role.</p>
-                    </div>
-
-                    {/* iOS Grouped Form Style - Enhanced */}
-                    <motion.div
-                        initial={{ y: 20, opacity: 0 }}
-                        animate={{ y: 0, opacity: 1 }}
-                        transition={{ delay: 0.2, duration: 0.5 }}
-                        className="glass-card overflow-hidden shadow-2xl mb-8 ring-1 ring-white/10"
-                    >
-                        <div className="divide-y divide-border/40">
-                            {/* Field 1 */}
-                            <div className="h-20 px-6 flex items-center justify-between hover:bg-white/5 transition-colors cursor-pointer group">
-                                <div className="flex items-center gap-4">
-                                    <div className="w-10 h-10 rounded-xl bg-blue-500/10 flex items-center justify-center text-blue-500 ring-1 ring-blue-500/20">
-                                        <Briefcase className="w-5 h-5" />
-                                    </div>
-                                    <span className="font-semibold text-foreground text-base">Target Role</span>
-                                </div>
-                                <div className="h-full flex items-center">
-                                    <select
-                                        className="bg-transparent text-right outline-none text-muted-foreground font-medium cursor-pointer group-hover:text-primary transition-colors appearance-none pl-4 pr-0 py-2 text-base"
-                                        value={config.role}
-                                        onChange={(e) => setConfig({ ...config, role: e.target.value })}
-                                    >
-                                        <option>Software Engineer</option>
-                                        <option>Product Manager</option>
-                                        <option>Data Scientist</option>
-                                        <option>Designer</option>
-                                    </select>
-                                </div>
-                            </div>
-
-                            {/* Field 2 */}
-                            <div className="h-20 px-6 flex items-center justify-between hover:bg-white/5 transition-colors cursor-pointer group">
-                                <div className="flex items-center gap-4">
-                                    <div className="w-10 h-10 rounded-xl bg-green-500/10 flex items-center justify-center text-green-500 ring-1 ring-green-500/20">
-                                        <GraduationCap className="w-5 h-5" />
-                                    </div>
-                                    <span className="font-semibold text-foreground text-base">Experience</span>
-                                </div>
-                                <div className="h-full flex items-center">
-                                    <select
-                                        className="bg-transparent text-right outline-none text-muted-foreground font-medium cursor-pointer group-hover:text-primary transition-colors appearance-none pl-4 pr-0 py-2 text-base"
-                                        value={config.experience_level}
-                                        onChange={(e) => setConfig({ ...config, experience_level: e.target.value })}
-                                    >
-                                        <option>Intern</option>
-                                        <option>Junior</option>
-                                        <option>Mid-Level</option>
-                                        <option>Senior</option>
-                                    </select>
-                                </div>
-                            </div>
-
-                            {/* Field 3 */}
-                            <div className="h-20 px-6 flex items-center justify-between hover:bg-white/5 transition-colors cursor-pointer group">
-                                <div className="flex items-center gap-4">
-                                    <div className="w-10 h-10 rounded-xl bg-orange-500/10 flex items-center justify-center text-orange-500 ring-1 ring-orange-500/20">
-                                        <Code className="w-5 h-5" />
-                                    </div>
-                                    <span className="font-semibold text-foreground text-base">Focus Topic</span>
-                                </div>
-                                <div className="h-full flex items-center">
-                                    <input
-                                        className="bg-transparent text-right outline-none text-muted-foreground font-medium placeholder:text-muted-foreground/50 w-48 focus:text-primary transition-colors mobile-input-reset text-base"
-                                        value={config.topic}
-                                        onChange={(e) => setConfig({ ...config, topic: e.target.value })}
-                                        placeholder="General"
-                                    />
-                                </div>
-                            </div>
-                        </div>
-                    </motion.div>
-
-                    <motion.button
-                        whileHover={{ scale: 1.02, textShadow: "0 0 8px rgba(255,255,255,0.5)" }}
-                        whileTap={{ scale: 0.98 }}
-                        onClick={handleStart}
-                        disabled={loading}
-                        className="w-full bg-primary text-primary-foreground py-5 rounded-[24px] font-bold text-xl shadow-[0_0_40px_-10px_var(--color-primary)] hover:shadow-[0_0_60px_-10px_var(--color-primary)] transition-all flex items-center justify-center gap-2 disabled:opacity-50 disabled:shadow-none relative overflow-hidden group"
-                    >
-                        <div className="absolute inset-0 bg-gradient-to-r from-transparent via-white/20 to-transparent translate-x-[-100%] group-hover:translate-x-[100%] transition-transform duration-1000" />
-                        {loading ? (
-                            <span className="flex items-center gap-2">
-                                <span className="w-5 h-5 border-3 border-white/30 border-t-white rounded-full animate-spin" />
-                                Initializing Session...
-                            </span>
-                        ) : (
-                            <>Start Interview Session <ChevronRight className="w-6 h-6" /></>
-                        )}
-                    </motion.button>
-                </motion.div>
-            </div>
+    const CardWrapper = ({ children, className = "" }: { children: React.ReactNode; className?: string }) => (
+        <div className={clsx("bg-card dark:bg-[#0C0C0C] rounded-[40px] border border-border dark:border-white/5 p-10 shadow-sm dark:shadow-none", className)}>
+            {children}
         </div>
+    );
+
+    return (
+        <div className="min-h-screen bg-background text-foreground flex flex-col items-center justify-center p-6 transition-colors duration-300 pt-32">
+
+            {/* Centered App Navbar - Expandable */}
+            <motion.nav
+                className="fixed top-8 inset-x-0 z-50 flex justify-center pointer-events-none"
+            >
+                <motion.div
+                    layout
+                    className="pointer-events-auto bg-background/80 dark:bg-zinc-900/80 backdrop-blur-xl border border-border dark:border-white/10 rounded-full shadow-2xl flex items-center p-2 gap-0 overflow-hidden"
+                    transition={{ type: "spring", bounce: 0, duration: 0.3 }}
+                >
+                    <AnimatePresence mode="popLayout">
+                        {isNavExpanded && (
+                            <motion.div
+                                initial={{ opacity: 0, width: 0 }}
+                                animate={{ opacity: 1, width: "auto" }}
+                                exit={{ opacity: 0, width: 0 }}
+                                className="overflow-hidden"
+                            >
+                                <Link href="/" className="px-4 py-2 rounded-full text-sm font-medium text-muted-foreground hover:text-foreground hover:bg-secondary/50 dark:hover:bg-white/5 transition-colors whitespace-nowrap block mr-2">
+                                    Home
+                                </Link>
+                            </motion.div>
+                        )}
+                    </AnimatePresence>
+
+                    <button
+                        onClick={() => setIsNavExpanded(!isNavExpanded)}
+                        className="px-4 py-2 rounded-full text-sm font-medium text-foreground bg-secondary/50 dark:bg-white/10 whitespace-nowrap block hover:bg-secondary/80 transition-colors"
+                    >
+                        Set your Interview
+                    </button>
+
+
+
+                    <AnimatePresence mode="popLayout">
+                        {isNavExpanded && (
+                            <motion.div
+                                initial={{ opacity: 0, width: 0 }}
+                                animate={{ opacity: 1, width: "auto" }}
+                                exit={{ opacity: 0, width: 0 }}
+                                className="overflow-hidden"
+                            >
+                                {isLoggedIn ? (
+                                    <Link href="/dashboard" className="px-4 py-2 rounded-full text-sm font-medium text-muted-foreground hover:text-foreground hover:bg-secondary/50 dark:hover:bg-white/5 transition-colors whitespace-nowrap block ml-2">
+                                        Profile
+                                    </Link>
+                                ) : (
+                                    <Link href="/auth/login" className="px-4 py-2 rounded-full text-sm font-medium text-muted-foreground hover:text-foreground hover:bg-secondary/50 dark:hover:bg-white/5 transition-colors whitespace-nowrap block ml-2">
+                                        Sign In
+                                    </Link>
+                                )}
+                            </motion.div>
+                        )}
+                    </AnimatePresence>
+                </motion.div>
+            </motion.nav>
+
+            {/* Progress Pill - Moved down below navbar */}
+            <div className="fixed top-28 left-1/2 -translate-x-1/2 z-40 bg-background/80 dark:bg-zinc-900/80 backdrop-blur-xl rounded-full px-4 py-2 text-sm font-medium border border-border dark:border-white/10 flex items-center gap-3 shadow-sm">
+                <span className="text-muted-foreground">Step</span>
+                <span className="text-foreground">{step + 1}</span>
+                <span className="text-muted-foreground">/</span>
+                <span className="text-muted-foreground">{STEPS.length}</span>
+            </div>
+
+            {/* Back Button */}
+            {
+                step > 0 && (
+                    <button onClick={() => setStep(s => s - 1)} className="fixed top-8 left-6 z-50 p-2 text-muted-foreground hover:text-foreground transition-colors bg-background/50 rounded-full border border-border/50 dark:border-white/5">
+                        <ChevronLeft className="w-6 h-6" />
+                    </button>
+                )
+            }
+
+            <main className="w-full max-w-2xl mt-8">
+                <AnimatePresence mode="wait">
+                    <motion.div
+                        key={step}
+                        initial={{ opacity: 0, y: 10 }}
+                        animate={{ opacity: 1, y: 0 }}
+                        exit={{ opacity: 0, y: -10 }}
+                        transition={{ duration: 0.15 }}
+                    >
+                        {/* Step 0: Role */}
+                        {step === 0 && (
+                            <CardWrapper>
+                                <h1 className="text-3xl font-bold mb-2 text-center text-foreground">Target Role</h1>
+                                <p className="text-muted-foreground text-base mb-8 text-center">What job are you interviewing for?</p>
+                                <div className="grid grid-cols-2 gap-3">
+                                    {ROLES.map(role => (
+                                        <button
+                                            key={role}
+                                            onClick={() => { setConfig({ ...config, role }); setStep(1); }}
+                                            className={clsx(
+                                                "p-5 rounded-2xl text-base font-medium transition-all text-center border",
+                                                config.role === role
+                                                    ? "bg-primary text-primary-foreground border-primary"
+                                                    : "bg-secondary dark:bg-[#111] text-muted-foreground hover:bg-secondary/80 dark:hover:bg-[#1a1a1a] border-transparent dark:border-white/5"
+                                            )}
+                                        >
+                                            {role}
+                                        </button>
+                                    ))}
+                                </div>
+                            </CardWrapper>
+                        )}
+
+                        {/* Step 1: Level */}
+                        {step === 1 && (
+                            <CardWrapper>
+                                <h1 className="text-3xl font-bold mb-2 text-center text-foreground">Experience</h1>
+                                <p className="text-muted-foreground text-base mb-8 text-center">What's your seniority?</p>
+                                <div className="grid grid-cols-2 gap-3">
+                                    {LEVELS.map(level => (
+                                        <button
+                                            key={level}
+                                            onClick={() => { setConfig({ ...config, experience_level: level }); setStep(2); }}
+                                            className={clsx(
+                                                "p-5 rounded-2xl text-base font-medium transition-all text-center flex items-center justify-center gap-2 border",
+                                                config.experience_level === level
+                                                    ? "bg-primary text-primary-foreground border-primary"
+                                                    : "bg-secondary dark:bg-[#111] text-muted-foreground hover:bg-secondary/80 dark:hover:bg-[#1a1a1a] border-transparent dark:border-white/5"
+                                            )}
+                                        >
+                                            {level}
+                                            {config.experience_level === level && <Check className="w-4 h-4" />}
+                                        </button>
+                                    ))}
+                                </div>
+                            </CardWrapper>
+                        )}
+
+                        {/* Step 2: Style */}
+                        {step === 2 && (
+                            <CardWrapper>
+                                <h1 className="text-3xl font-bold mb-2 text-center text-foreground">Interview Style</h1>
+                                <p className="text-muted-foreground text-base mb-8 text-center">How should we challenge you?</p>
+                                <div className="grid grid-cols-2 gap-3">
+                                    {TYPES.map(type => (
+                                        <button
+                                            key={type}
+                                            onClick={() => { setConfig({ ...config, interview_type: type }); setStep(3); }}
+                                            className={clsx(
+                                                "p-5 rounded-2xl text-base font-medium transition-all text-center border",
+                                                config.interview_type === type
+                                                    ? "bg-primary text-primary-foreground border-primary"
+                                                    : "bg-secondary dark:bg-[#111] text-muted-foreground hover:bg-secondary/80 dark:hover:bg-[#1a1a1a] border-transparent dark:border-white/5"
+                                            )}
+                                        >
+                                            {type}
+                                        </button>
+                                    ))}
+                                </div>
+                            </CardWrapper>
+                        )}
+
+                        {/* Step 3: AI Context (Optional) */}
+                        {step === 3 && (
+                            <CardWrapper>
+                                <div className="flex items-center justify-center gap-2 mb-2">
+                                    <Sparkles className="w-6 h-6 text-purple-500" />
+                                    <h1 className="text-3xl font-bold text-foreground">AI Context</h1>
+                                </div>
+                                <p className="text-muted-foreground text-base mb-8 text-center">Optional: Personalize your interview</p>
+
+                                <div className="space-y-4 mb-6">
+                                    {/* Resume Upload */}
+                                    <div className="bg-secondary dark:bg-[#111] rounded-2xl p-5 border border-transparent dark:border-white/5">
+                                        <div className="flex items-center gap-2 mb-3">
+                                            <FileText className="w-4 h-4 text-blue-500" />
+                                            <span className="text-sm font-medium text-foreground">Resume</span>
+                                        </div>
+
+                                        <input
+                                            type="file"
+                                            ref={fileInputRef}
+                                            onChange={handleFileUpload}
+                                            accept=".txt,.pdf,.doc,.docx"
+                                            className="hidden"
+                                        />
+
+                                        {resumeFile ? (
+                                            <div className="flex items-center justify-between bg-background/50 dark:bg-black/50 rounded-lg p-3 border border-border dark:border-white/10">
+                                                <span className="text-sm text-foreground truncate">{resumeFile.name}</span>
+                                                <button onClick={() => { setResumeFile(null); setConfig({ ...config, resume_context: "" }); }} className="text-muted-foreground hover:text-foreground">
+                                                    <X className="w-4 h-4" />
+                                                </button>
+                                            </div>
+                                        ) : (
+                                            <button
+                                                onClick={() => fileInputRef.current?.click()}
+                                                className="w-full h-20 border-2 border-dashed border-border dark:border-white/10 rounded-lg flex flex-col items-center justify-center gap-2 text-muted-foreground hover:border-primary/50 hover:text-foreground transition-colors"
+                                            >
+                                                <Upload className="w-5 h-5" />
+                                                <span className="text-xs">Upload Resume</span>
+                                            </button>
+                                        )}
+                                    </div>
+
+                                    {/* Job Description */}
+                                    <div className="bg-secondary dark:bg-[#111] rounded-2xl p-5 border border-transparent dark:border-white/5">
+                                        <div className="flex items-center gap-2 mb-3">
+                                            <Briefcase className="w-4 h-4 text-green-500" />
+                                            <span className="text-sm font-medium text-foreground">Job Description</span>
+                                        </div>
+                                        <textarea
+                                            value={config.job_description}
+                                            onChange={(e) => setConfig({ ...config, job_description: e.target.value })}
+                                            placeholder="Paste the job description here..."
+                                            className="w-full h-20 bg-background/50 dark:bg-black/50 rounded-lg p-3 text-sm text-foreground placeholder:text-muted-foreground resize-none border border-border dark:border-white/5 focus:border-primary focus:outline-none"
+                                        />
+                                    </div>
+                                </div>
+
+                                <button
+                                    onClick={() => setStep(4)}
+                                    className="w-full py-3 bg-primary text-primary-foreground rounded-full text-sm font-bold hover:opacity-90 transition-opacity"
+                                >
+                                    Continue
+                                </button>
+                                <button
+                                    onClick={() => setStep(4)}
+                                    className="w-full py-3 text-muted-foreground text-sm mt-2 hover:text-foreground transition-colors"
+                                >
+                                    Skip for now
+                                </button>
+                            </CardWrapper>
+                        )}
+
+                        {/* Step 4: Summary */}
+                        {step === 4 && (
+                            <CardWrapper>
+                                <h1 className="text-3xl font-bold mb-2 text-center text-foreground">Summary</h1>
+                                <p className="text-muted-foreground text-base mb-8 text-center">Review your configuration.</p>
+
+                                <div className="bg-secondary dark:bg-[#111] rounded-2xl divide-y divide-border dark:divide-white/5 mb-8 border border-transparent dark:border-white/5">
+                                    <div className="p-5 flex justify-between items-center">
+                                        <div>
+                                            <div className="text-sm text-muted-foreground">Role</div>
+                                            <div className="text-base font-medium text-foreground">{config.role}</div>
+                                        </div>
+                                        <button onClick={() => setStep(0)} className="p-2 text-muted-foreground hover:text-foreground"><Edit2 className="w-4 h-4" /></button>
+                                    </div>
+                                    <div className="p-5 flex justify-between items-center">
+                                        <div>
+                                            <div className="text-sm text-muted-foreground">Level</div>
+                                            <div className="text-base font-medium text-foreground">{config.experience_level}</div>
+                                        </div>
+                                        <button onClick={() => setStep(1)} className="p-2 text-muted-foreground hover:text-foreground"><Edit2 className="w-4 h-4" /></button>
+                                    </div>
+                                    <div className="p-4 flex justify-between items-center">
+                                        <div>
+                                            <div className="text-xs text-muted-foreground">Style</div>
+                                            <div className="text-sm font-medium text-foreground">{config.interview_type}</div>
+                                        </div>
+                                        <button onClick={() => setStep(2)} className="p-2 text-muted-foreground hover:text-foreground"><Edit2 className="w-4 h-4" /></button>
+                                    </div>
+                                    {(resumeFile || config.job_description) && (
+                                        <div className="p-4 flex justify-between items-center">
+                                            <div>
+                                                <div className="text-xs text-muted-foreground">AI Context</div>
+                                                <div className="text-sm font-medium text-purple-500">
+                                                    {resumeFile ? "Resume" : ""}{resumeFile && config.job_description ? " + " : ""}{config.job_description ? "JD" : ""} added
+                                                </div>
+                                            </div>
+                                            <button onClick={() => setStep(3)} className="p-2 text-muted-foreground hover:text-foreground"><Edit2 className="w-4 h-4" /></button>
+                                        </div>
+                                    )}
+                                </div>
+
+                                <button
+                                    onClick={handleStart}
+                                    disabled={loading}
+                                    className="w-full py-3 bg-primary text-primary-foreground rounded-full text-sm font-bold flex items-center justify-center gap-2 hover:opacity-90 transition-opacity disabled:opacity-50"
+                                >
+                                    {loading ? "Starting..." : "Begin Interview"} <ArrowRight className="w-4 h-4" />
+                                </button>
+                            </CardWrapper>
+                        )}
+                    </motion.div>
+                </AnimatePresence>
+            </main>
+        </div >
     );
 }

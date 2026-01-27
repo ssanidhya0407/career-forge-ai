@@ -1,5 +1,7 @@
 import type { Metadata } from "next";
 import "./globals.css";
+import { ThemeProvider } from "@/components/ThemeProvider";
+import { AuthProvider } from "@/components/AuthProvider";
 
 export const metadata: Metadata = {
   title: "CareerForge.ai | AI Interview Coach",
@@ -12,9 +14,19 @@ export default function RootLayout({
   children: React.ReactNode;
 }>) {
   return (
-    <html lang="en" className="dark">
-      <body className={`font-sans antialiased bg-slate-950 text-slate-100`}>
-        {children}
+    <html lang="en" suppressHydrationWarning>
+      <head>
+        <link rel="manifest" href="/manifest.json" />
+        <meta name="theme-color" content="#0f172a" />
+        <meta name="apple-mobile-web-app-capable" content="yes" />
+        <meta name="apple-mobile-web-app-status-bar-style" content="black-translucent" />
+      </head>
+      <body className="font-sans antialiased bg-background text-foreground">
+        <ThemeProvider>
+          <AuthProvider>
+            {children}
+          </AuthProvider>
+        </ThemeProvider>
       </body>
     </html>
   );
