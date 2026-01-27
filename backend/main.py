@@ -432,7 +432,7 @@ async def get_feedback(req: FeedbackRequest):
     user_word_count = sum(len(m.content.split()) for m in user_messages)
     
     if user_word_count < 10:
-        return {
+        fallback_data = {
             "score": 10,
             "summary": "The interview was too short or lacked participation.",
             "strengths": ["Attendance"],
@@ -444,6 +444,15 @@ async def get_feedback(req: FeedbackRequest):
             "improvement_tips": ["Practice answering questions with the STAR method."],
             "voice_metrics": None
         }
+        
+        # Update DB for short interview
+        db = get_db()
+        docs = db.collection('interviews').where('session_id', '==', session_id).stream()
+        for doc in docs:
+            db.collection('interviews').document(doc.id).update(fallback_data)
+            break
+            
+        return fallback_data
     
     voice_metrics = analyze_all_responses([m.model_dump() for m in state.conversation_history])
     
