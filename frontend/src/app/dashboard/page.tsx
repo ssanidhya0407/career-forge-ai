@@ -4,9 +4,9 @@ import { useEffect, useState } from "react";
 import { motion, AnimatePresence } from "framer-motion";
 import { useRouter } from "next/navigation";
 import { useAuth } from "@/components/AuthProvider";
-import { startInterview } from "@/lib/api";
-import { ThemeToggleButton } from "@/components/ui/ThemeToggle";
-LayoutDashboard,
+import { getInterviews, getDashboardStats, InterviewRecord, DashboardStats, startInterview } from "@/lib/api";
+import {
+    LayoutDashboard,
     Play,
     Calendar,
     Award,
