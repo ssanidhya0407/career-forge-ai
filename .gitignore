@@ -13,3 +13,5 @@ out/
 # User specific
 .vscode/
 backend/serviceAccountKey.json
+railway_vars.json
+backend/railway_vars.json
