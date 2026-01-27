@@ -67,7 +67,7 @@ export function ResumeUpload({ onResumeParsed, className }: ResumeUploadProps) {
                         initial={{ opacity: 0, y: 10 }}
                         animate={{ opacity: 1, y: 0 }}
                         exit={{ opacity: 0, y: -10 }}
-                        {...getRootProps()}
+                        {...(getRootProps() as any)}
                         className={clsx(
                             "border-2 border-dashed rounded-2xl p-8 text-center cursor-pointer transition-all",
                             isDragActive
