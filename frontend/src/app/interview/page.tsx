@@ -102,8 +102,14 @@ function InterviewContent() {
                 }
 
                 // Setup MediaRecorder
-                const mimeType = MediaRecorder.isTypeSupported("audio/webm") ? "audio/webm" : "audio/mp4";
-                const recorder = new MediaRecorder(stream, { mimeType });
+                let options: MediaRecorderOptions | undefined = undefined;
+                if (MediaRecorder.isTypeSupported("audio/webm")) {
+                    options = { mimeType: "audio/webm" };
+                } else if (MediaRecorder.isTypeSupported("audio/mp4")) {
+                    options = { mimeType: "audio/mp4" };
+                }
+
+                const recorder = new MediaRecorder(stream, options);
 
                 recorder.ondataavailable = (event) => {
                     if (event.data.size > 0) {
@@ -248,11 +254,9 @@ function InterviewContent() {
         // Message is sent, stop recording immediately if still running
         if (mediaRecorderRef.current && mediaRecorderRef.current.state === "recording") {
             mediaRecorderRef.current.stop();
-            // Wait for 'stop' event to process chunks? 
-            // The functionality of MediaRecorder is async. 
-            // We need to wait for the dataavailable event which fires on stop.
-            // Let's give it a tiny delay to ensure chunks are pushed.
-            await new Promise(r => setTimeout(r, 100));
+            // Wait for 'stop' event and dataavailable to fire
+            // 500ms is safer to ensure the final chunk is captured
+            await new Promise(r => setTimeout(r, 500));
 
             // Upload audio
             if (audioChunksRef.current.length > 0) {
