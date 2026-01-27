@@ -10,7 +10,7 @@ import {
 } from "lucide-react";
 import { Logo } from "@/components/ui/logo";
 import { useAuth } from "@/components/AuthProvider";
-import { ThemeToggleButton } from "@/components/ui/ThemeToggle";
+
 import clsx from "clsx";
 
 export default function Home() {
@@ -39,9 +39,7 @@ export default function Home() {
         <div className="absolute bottom-[-10%] left-1/2 -translate-x-1/2 w-[1200px] h-[600px] bg-[radial-gradient(circle,rgba(0,112,243,0.1)_0%,rgba(0,0,0,0)_70%)] blur-[80px]" />
       </div>
 
-      <div className="fixed top-6 right-6 z-50">
-        <ThemeToggleButton />
-      </div>
+
 
       {/* Smart Navbar - Collapses to active pill on scroll */}
       <motion.nav

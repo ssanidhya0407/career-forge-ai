@@ -2,6 +2,7 @@ import type { Metadata } from "next";
 import "./globals.css";
 import { ThemeProvider } from "@/components/ThemeProvider";
 import { AuthProvider } from "@/components/AuthProvider";
+import { ThemeToggleButton } from "@/components/ui/ThemeToggle";
 
 export const metadata: Metadata = {
   title: "CareerForge.ai | AI Interview Coach",
@@ -24,6 +25,9 @@ export default function RootLayout({
       <body className="font-sans antialiased bg-background text-foreground">
         <ThemeProvider>
           <AuthProvider>
+            <div className="fixed top-4 right-4 z-[100]">
+              <ThemeToggleButton />
+            </div>
             {children}
           </AuthProvider>
         </ThemeProvider>

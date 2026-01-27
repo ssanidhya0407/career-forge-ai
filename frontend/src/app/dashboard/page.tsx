@@ -5,7 +5,7 @@ import { motion, AnimatePresence } from "framer-motion";
 import { useRouter } from "next/navigation";
 import { useAuth } from "@/components/AuthProvider";
 import { getInterviews, getDashboardStats, InterviewRecord, DashboardStats, startInterview } from "@/lib/api";
-import { ThemeToggleButton } from "@/components/ui/ThemeToggle";
+
 import {
     LayoutDashboard,
     Play,
@@ -102,10 +102,7 @@ export default function DashboardPage() {
                 <div className="absolute bottom-[-20%] left-[-10%] w-[600px] h-[600px] bg-blue-500/5 dark:bg-blue-500/10 rounded-full blur-[120px]" />
             </div>
 
-            {/* Theme Toggle (Fixed Top Right) */}
-            <div className="fixed top-6 right-6 z-50">
-                <ThemeToggleButton />
-            </div>
+
 
             {/* Centered App Navbar - Expandable */}
             <motion.nav
