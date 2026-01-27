@@ -4,10 +4,9 @@ import { useEffect, useState } from "react";
 import { motion, AnimatePresence } from "framer-motion";
 import { useRouter } from "next/navigation";
 import { useAuth } from "@/components/AuthProvider";
-import { getInterviews, getDashboardStats, InterviewRecord, DashboardStats, startInterview } from "@/lib/api";
-
-import {
-    LayoutDashboard,
+import { startInterview } from "@/lib/api";
+import { ThemeToggleButton } from "@/components/ui/ThemeToggle";
+LayoutDashboard,
     Play,
     Calendar,
     Award,
@@ -158,6 +157,8 @@ export default function DashboardPage() {
                             </motion.div>
                         )}
                     </AnimatePresence>
+
+
                 </motion.div>
             </motion.nav>
 

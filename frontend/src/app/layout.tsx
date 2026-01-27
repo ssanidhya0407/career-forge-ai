@@ -4,6 +4,7 @@ import { ThemeProvider } from "@/components/ThemeProvider";
 import { AuthProvider } from "@/components/AuthProvider";
 import { ThemeToggleButton } from "@/components/ui/ThemeToggle";
 
+
 export const metadata: Metadata = {
   title: "CareerForge.ai | AI Interview Coach",
   description: "Master your next interview with an intelligent AI agent.",
@@ -25,7 +26,7 @@ export default function RootLayout({
       <body className="font-sans antialiased bg-background text-foreground">
         <ThemeProvider>
           <AuthProvider>
-            <div className="fixed top-4 right-4 z-[100]">
+            <div className="fixed top-8 right-6 z-[100]">
               <ThemeToggleButton />
             </div>
             {children}
