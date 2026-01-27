@@ -62,18 +62,45 @@ This is the most robust method for this app because it uses **SQLite**. A VPS gi
 3.  **Deploy**: Follow the "Deploying to a VPS" steps above.
 4.  **Domain**: Buy a domain (e.g., on Namecheap) and point its `A Record` to your Server's IP.
 
-### Option 2: Cloud Platform (Render / Railway) - **Easier**
-Platforms like [Render](https://render.com) or [Railway](https://railway.app) manage the server for you.
+### Option 2: Railway + Vercel (The "Modern Stack" Way)
 
-1.  **Push to GitHub**: Ensure your code is in a public or private GitHub reqpo.
-2.  **Create Web Service (Backend)**:
-    -   Connect GitHub Repo.
-    -   Select `backend` folder as Root Directory.
-    -   Runtime: **Docker**.
-    -   **Important**: Add a **Persistent Disk** mount to `/app` so your `careerforge.db` is saved.
-    -   Add Env Var: `GOOGLE_GENAI_API_KEY`.
-3.  **Create Web Service (Frontend)**:
-    -   Select `frontend` folder as Root Directory.
-    -   Runtime: **Docker**.
-    -   Add Env Var: `NEXT_PUBLIC_API_URL` = `https://your-backend-app.onrender.com` (The URL Render gives you).
+This is a popular combination: **Railway** for the Backend (Python/Docker) and **Vercel** for the Frontend (Next.js).
+
+#### Part A: Deploy Backend to Railway
+1.  Sign up at [Railway.app](https://railway.app).
+2.  Click **New Project** -> **GitHub Repo** -> Select `career-forge-ai`.
+3.  **Config**: Railway will auto-detect the Dockerfile in `backend/`. 
+    *   If it asks for Root Directory, choose `backend`.
+4.  **Variables**: Go to the **Variables** tab and add:
+    *   `GOOGLE_GENAI_API_KEY`: Your Gemini API Key.
+    *   `FIREBASE_CREDENTIALS_JSON`: Open your local `serviceAccountKey.json`, copy the **entire content**, and paste it here as the value.
+    *   `PORT`: `8000`.
+5.  **Domain**: Go to **Settings** -> **Domains** -> **Generate Domain**. (e.g., `career-forge-backend.up.railway.app`). Copy this URL.
+
+#### Part B: Deploy Frontend to Vercel
+1.  Sign up at [Vercel.com](https://vercel.com).
+2.  Click **Add New** -> **Project** -> Select `career-forge-ai`.
+3.  **Config**: 
+    *   Framework Preset: **Next.js**.
+    *   Root Directory: Click Edit and select `frontend`.
+4.  **Environment Variables**: expand the section and add:
+    *   `NEXT_PUBLIC_API_URL`: The Domain URL you got from Railway (e.g., `https://career-forge-backend.up.railway.app`). **Important**: Make sure it starts with `https://` and has no trailing slash.
+5.  Click **Deploy**.
+
+---
+
+## 📋 Environment Variables Checklist
+
+Copy and paste these keys when setting up your cloud projects.
+
+**Backend (Railway)**
+```
+GOOGLE_GENAI_API_KEY=
+FIREBASE_CREDENTIALS_JSON=
+```
+
+**Frontend (Vercel)**
+```
+NEXT_PUBLIC_API_URL=
+```
 
