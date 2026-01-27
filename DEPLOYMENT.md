@@ -69,8 +69,9 @@ This is a popular combination: **Railway** for the Backend (Python/Docker) and *
 #### Part A: Deploy Backend to Railway
 1.  Sign up at [Railway.app](https://railway.app).
 2.  Click **New Project** -> **GitHub Repo** -> Select `career-forge-ai`.
-3.  **Config**: Railway will auto-detect the Dockerfile in `backend/`. 
-    *   If it asks for Root Directory, choose `backend`.
+3.  **Config**: 
+    *   **Root Directory**: Go to **Settings** -> **General** -> **Root Directory** and set it to `/backend`. **(Critical Step)**
+    *   Railway should then detect the `Dockerfile`. If it defaults to "Nixpacks", change Build Provider to "Docker".
 4.  **Variables**: Go to the **Variables** tab and add:
     *   `GOOGLE_GENAI_API_KEY`: Your Gemini API Key.
     *   `FIREBASE_CREDENTIALS_JSON`: Open your local `serviceAccountKey.json`, copy the **entire content**, and paste it here as the value.
