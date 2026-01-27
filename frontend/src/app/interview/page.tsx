@@ -187,6 +187,13 @@ function InterviewContent() {
     useEffect(() => {
         if (!mediaRecorderRef.current || !isMicOn) return;
 
+        // Verify the recorder's stream is still active
+        const stream = mediaRecorderRef.current.stream;
+        if (!stream || stream.getTracks().every(t => t.readyState === 'ended')) {
+            console.warn("MediaRecorder stream is not active");
+            return;
+        }
+
         if (isSpeaking) {
             // AI is speaking, pause/stop recording user
             if (mediaRecorderRef.current.state === "recording") {
@@ -196,7 +203,11 @@ function InterviewContent() {
             // AI finished, user turn. Start recording if not already.
             if (mediaRecorderRef.current.state === "inactive") {
                 audioChunksRef.current = []; // Clear previous chunks
-                try { mediaRecorderRef.current.start(); } catch (e) { console.error("Rec start fail", e); }
+                try {
+                    mediaRecorderRef.current.start();
+                } catch (e) {
+                    console.error("MediaRecorder start failed:", e);
+                }
             }
         }
     }, [isSpeaking, isMicOn]);
