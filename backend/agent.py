@@ -50,13 +50,17 @@ Value precision over broad generalities."""
 
 
 LANGUAGE_PROMPTS = {
-    "en": "Conduct the interview in English.",
-    "es": "Conduce la entrevista en español.",
-    "hi": "इंटरव्यू हिंदी में करें।",
-    "fr": "Menez l'entretien en français.",
-    "de": "Führen Sie das Interview auf Deutsch.",
-    "zh": "用中文进行面试。",
-    "ja": "日本語で面接を行ってください。"
+    "en": """CRITICAL LANGUAGE RULE: You MUST conduct this interview ENTIRELY in English.
+- NEVER switch to Hindi, Hinglish, or any other language.
+- Even if the candidate responds in another language, you MUST reply in English only.
+- All questions, follow-ups, and feedback must be in proper English.
+- Do not mix languages under any circumstances.""",
+    "es": "Conduce la entrevista completamente en español. No cambies de idioma.",
+    "hi": "इंटरव्यू पूरी तरह से हिंदी में करें। भाषा न बदलें।",
+    "fr": "Menez l'entretien entièrement en français. Ne changez pas de langue.",
+    "de": "Führen Sie das Interview vollständig auf Deutsch. Wechseln Sie nicht die Sprache.",
+    "zh": "完全用中文进行面试。不要切换语言。",
+    "ja": "面接は完全に日本語で行ってください。言語を切り替えないでください。"
 }
 
 
@@ -76,6 +80,7 @@ Protocol:
 Do NOT break character.
 Do NOT output system notes or instructions.
 Do NOT autocomplete user responses.
+NEVER respond in Hindi, Hinglish, or any mixed language unless explicitly configured.
 """
     
     type_prompt = INTERVIEW_TYPE_PROMPTS.get(config.interview_type, INTERVIEW_TYPE_PROMPTS["Mixed"])
