@@ -4,7 +4,7 @@ import { useEffect, useState, useRef, Suspense } from "react";
 import { useSearchParams } from "next/navigation";
 import { api, sendChat, uploadAudio, getSettings } from "@/lib/api";
 import { motion, AnimatePresence } from "framer-motion";
-import { Mic, MicOff, Video, VideoOff, PhoneOff, ArrowLeft, Volume2, Maximize2, Minimize2, Timer } from "lucide-react";
+import { Mic, MicOff, Video, VideoOff, PhoneOff, Timer } from "lucide-react";
 import { useRouter } from "next/navigation";
 import Link from "next/link";
 import clsx from "clsx";
@@ -33,7 +33,6 @@ function InterviewContent() {
     const [showCaptions, setShowCaptions] = useState(true);
     const [isSpeaking, setIsSpeaking] = useState(false);
     const [permissionError, setPermissionError] = useState(false);
-    const [isFullScreen, setIsFullScreen] = useState(false);
 
     // Dynamic Caption State
     const [charIndex, setCharIndex] = useState(0);
@@ -405,13 +404,6 @@ function InterviewContent() {
                         </span>
                     </motion.div>
                 )}
-
-                <button
-                    onClick={() => setIsFullScreen(!isFullScreen)}
-                    className="p-3 rounded-full bg-white/5 backdrop-blur-md hover:bg-white/10 transition-colors text-white/60 hover:text-white"
-                >
-                    {isFullScreen ? <Minimize2 className="w-5 h-5" /> : <Maximize2 className="w-5 h-5" />}
-                </button>
             </div>
 
             <div className="flex-1 relative flex flex-col items-center justify-center p-6 lg:p-12 z-10">

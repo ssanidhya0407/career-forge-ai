@@ -50,20 +50,48 @@ email_service = EmailService()
 scheduler = AsyncIOScheduler()
 
 async def check_reminders():
-    """Background task to send reminders."""
+    """Background task to send reminders based on user settings."""
     print("⏰ Checking for reminders...")
     
     db = get_db()
-    # Simple query for enabled reminders
+    if not db:
+        print("❌ Database not initialized, skipping reminders")
+        return
+        
+    # Query users who have enabled email reminders
     docs = db.collection('user_settings').where('email_reminders', '==', True).stream()
     
     count = 0
+    now = datetime.utcnow()
+    
     for doc in docs:
         settings_data = doc.to_dict()
         user_id = settings_data.get('user_id')
+        frequency = settings_data.get('reminder_frequency', 'weekly')
+        last_sent = settings_data.get('last_reminder_sent')
         
-        # Fetch user (assuming user_id refers to document ID in users collection)
-        # Note: In auth.py we store user_id as doc ID.
+        # Calculate if reminder should be sent based on frequency
+        should_send = False
+        if last_sent is None:
+            should_send = True
+        else:
+            # Handle Firestore timestamp
+            if hasattr(last_sent, 'timestamp'):
+                last_sent = datetime.fromtimestamp(last_sent.timestamp())
+            
+            days_since = (now - last_sent).days
+            
+            if frequency == 'daily' and days_since >= 1:
+                should_send = True
+            elif frequency == 'weekly' and days_since >= 7:
+                should_send = True
+            elif frequency == 'monthly' and days_since >= 30:
+                should_send = True
+        
+        if not should_send:
+            continue
+            
+        # Fetch user to get email
         user_doc = db.collection('users').document(user_id).get()
         
         if user_doc.exists:
@@ -71,12 +99,20 @@ async def check_reminders():
             email = user_data.get('email')
             full_name = user_data.get('full_name')
             
-            # Simulate sending to active reminder users
-            await email_service.send_reminder(email, full_name)
-            count += 1
+            # Send reminder
+            success = await email_service.send_reminder(email, full_name)
+            
+            if success:
+                # Update last_reminder_sent timestamp
+                db.collection('user_settings').document(doc.id).update({
+                    'last_reminder_sent': now
+                })
+                count += 1
     
     if count > 0:
         print(f"✅ Sent {count} reminders.")
+    else:
+        print("ℹ️ No reminders to send at this time.")
 
 # Initialize DB and Scheduler on startup
 @app.on_event("startup")
