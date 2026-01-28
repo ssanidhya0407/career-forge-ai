@@ -4,7 +4,7 @@ import { useEffect, useState, useRef, Suspense } from "react";
 import { useSearchParams } from "next/navigation";
 import { api, sendChat, uploadAudio, getSettings } from "@/lib/api";
 import { motion, AnimatePresence } from "framer-motion";
-import { Mic, MicOff, Video, VideoOff, PhoneOff, Timer } from "lucide-react";
+import { Mic, MicOff, Video, VideoOff, PhoneOff } from "lucide-react";
 import { useRouter } from "next/navigation";
 import Link from "next/link";
 import clsx from "clsx";
@@ -383,31 +383,55 @@ function InterviewContent() {
                     <div className="w-2 h-2 rounded-full bg-green-500 animate-pulse shadow-[0_0_10px_#22c55e]" />
                     <span className="text-xs font-medium text-white/80 tracking-wide uppercase">Live Interview</span>
                 </div>
-
-                {/* Timer Display */}
-                {enableTimer && hasJoined && (
-                    <motion.div
-                        initial={{ opacity: 0, scale: 0.9 }}
-                        animate={{ opacity: 1, scale: 1 }}
-                        className={clsx(
-                            "flex items-center gap-2 px-4 py-2 rounded-full backdrop-blur-xl border",
-                            timeRemaining <= 30
-                                ? "bg-red-500/20 border-red-500/50 text-red-400"
-                                : timeRemaining <= 60
-                                    ? "bg-yellow-500/20 border-yellow-500/50 text-yellow-400"
-                                    : "bg-white/5 border-white/10 text-white/80"
-                        )}
-                    >
-                        <Timer className={clsx("w-4 h-4", timeRemaining <= 30 && "animate-pulse")} />
-                        <span className="text-sm font-mono font-medium">
-                            {Math.floor(timeRemaining / 60)}:{(timeRemaining % 60).toString().padStart(2, '0')}
-                        </span>
-                    </motion.div>
-                )}
             </div>
 
             <div className="flex-1 relative flex flex-col items-center justify-center p-6 lg:p-12 z-10">
                 <div className="relative mb-8">
+                    {/* Timer Ring - Circular Progress */}
+                    {enableTimer && hasJoined && (
+                        <svg
+                            className="absolute -inset-4 lg:-inset-6 w-[calc(100%+32px)] h-[calc(100%+32px)] lg:w-[calc(100%+48px)] lg:h-[calc(100%+48px)] -rotate-90"
+                            viewBox="0 0 100 100"
+                        >
+                            {/* Background ring */}
+                            <circle
+                                cx="50"
+                                cy="50"
+                                r="46"
+                                fill="none"
+                                stroke="rgba(255,255,255,0.1)"
+                                strokeWidth="2"
+                            />
+                            {/* Progress ring */}
+                            <motion.circle
+                                cx="50"
+                                cy="50"
+                                r="46"
+                                fill="none"
+                                stroke={
+                                    timeRemaining <= 30
+                                        ? "#ef4444"
+                                        : timeRemaining <= 60
+                                            ? "#eab308"
+                                            : "#8b5cf6"
+                                }
+                                strokeWidth="3"
+                                strokeLinecap="round"
+                                strokeDasharray={`${2 * Math.PI * 46}`}
+                                strokeDashoffset={2 * Math.PI * 46 * (1 - timeRemaining / timePerQuestion)}
+                                style={{
+                                    filter: timeRemaining <= 30
+                                        ? "drop-shadow(0 0 8px #ef4444)"
+                                        : timeRemaining <= 60
+                                            ? "drop-shadow(0 0 6px #eab308)"
+                                            : "drop-shadow(0 0 6px #8b5cf6)"
+                                }}
+                                transition={{ duration: 0.5, ease: "linear" }}
+                            />
+                        </svg>
+                    )}
+
+                    {/* AI Orb */}
                     <div className={clsx(
                         "relative w-56 h-56 lg:w-72 lg:h-72 rounded-full transition-all duration-300 ease-out flex items-center justify-center",
                         isSpeaking ? "scale-110" : "scale-100"
@@ -417,6 +441,26 @@ function InterviewContent() {
                             "absolute inset-0 bg-gradient-to-r from-blue-500 to-purple-600 rounded-full blur-[40px] opacity-40 transition-all duration-500",
                             isSpeaking ? "opacity-80 scale-125" : "opacity-40"
                         )} />
+
+                        {/* Timer Display Inside Orb */}
+                        {enableTimer && hasJoined && (
+                            <div className="absolute inset-0 flex items-center justify-center z-10">
+                                <motion.div
+                                    className={clsx(
+                                        "text-4xl lg:text-5xl font-light font-mono tracking-tight",
+                                        timeRemaining <= 30
+                                            ? "text-red-400"
+                                            : timeRemaining <= 60
+                                                ? "text-yellow-400"
+                                                : "text-white/90"
+                                    )}
+                                    animate={timeRemaining <= 30 ? { scale: [1, 1.05, 1] } : {}}
+                                    transition={{ duration: 1, repeat: Infinity }}
+                                >
+                                    {Math.floor(timeRemaining / 60)}:{(timeRemaining % 60).toString().padStart(2, '0')}
+                                </motion.div>
+                            </div>
+                        )}
                     </div>
                 </div>
 
