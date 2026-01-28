@@ -12,6 +12,15 @@ import clsx from "clsx";
 const ROLES = ["Software Engineer", "Frontend", "Backend", "Full Stack", "Data Scientist", "Product Manager", "DevOps"];
 const LEVELS = ["Intern", "Junior", "Mid-Level", "Senior", "Lead"];
 const TYPES: Array<"Mixed" | "Behavioral" | "Technical" | "System Design"> = ["Mixed", "Behavioral", "Technical", "System Design"];
+const LANGUAGES = [
+    { code: "en", name: "English", flag: "🇺🇸" },
+    { code: "es", name: "Español", flag: "🇪🇸" },
+    { code: "fr", name: "Français", flag: "🇫🇷" },
+    { code: "de", name: "Deutsch", flag: "🇩🇪" },
+    { code: "hi", name: "हिंदी", flag: "🇮🇳" },
+    { code: "zh", name: "中文", flag: "🇨🇳" },
+    { code: "ja", name: "日本語", flag: "🇯🇵" }
+];
 
 export default function SetupPage() {
     const router = useRouter();
@@ -78,7 +87,7 @@ export default function SetupPage() {
         }
     };
 
-    const STEPS = ["Role", "Level", "Style", "AI Context", "Summary"];
+    const STEPS = ["Role", "Level", "Style", "Language", "AI Context", "Summary"];
 
     const CardWrapper = ({ children, className = "" }: { children: React.ReactNode; className?: string }) => (
         <div className={clsx("bg-card dark:bg-[#0C0C0C] rounded-[40px] border border-border dark:border-white/5 p-10 shadow-sm dark:shadow-none", className)}>
@@ -244,8 +253,34 @@ export default function SetupPage() {
                             </CardWrapper>
                         )}
 
-                        {/* Step 3: AI Context (Optional) */}
+                        {/* Step 3: Language */}
                         {step === 3 && (
+                            <CardWrapper>
+                                <h1 className="text-3xl font-bold mb-2 text-center text-foreground">Language</h1>
+                                <p className="text-muted-foreground text-base mb-8 text-center">Choose your interview language</p>
+                                <div className="grid grid-cols-2 gap-3">
+                                    {LANGUAGES.map(lang => (
+                                        <button
+                                            key={lang.code}
+                                            onClick={() => { setConfig({ ...config, language: lang.code }); setStep(4); }}
+                                            className={clsx(
+                                                "p-5 rounded-2xl text-base font-medium transition-all text-center border flex items-center justify-center gap-3",
+                                                config.language === lang.code
+                                                    ? "bg-primary text-primary-foreground border-primary"
+                                                    : "bg-secondary dark:bg-[#111] text-muted-foreground hover:bg-secondary/80 dark:hover:bg-[#1a1a1a] border-transparent dark:border-white/5"
+                                            )}
+                                        >
+                                            <span className="text-xl">{lang.flag}</span>
+                                            <span>{lang.name}</span>
+                                            {config.language === lang.code && <Check className="w-4 h-4" />}
+                                        </button>
+                                    ))}
+                                </div>
+                            </CardWrapper>
+                        )}
+
+                        {/* Step 4: AI Context (Optional) */}
+                        {step === 4 && (
                             <CardWrapper>
                                 <div className="flex items-center justify-center gap-2 mb-2">
                                     <Sparkles className="w-6 h-6 text-purple-500" />
@@ -303,13 +338,13 @@ export default function SetupPage() {
                                 </div>
 
                                 <button
-                                    onClick={() => setStep(4)}
+                                    onClick={() => setStep(5)}
                                     className="w-full py-3 bg-primary text-primary-foreground rounded-full text-sm font-bold hover:opacity-90 transition-opacity"
                                 >
                                     Continue
                                 </button>
                                 <button
-                                    onClick={() => setStep(4)}
+                                    onClick={() => setStep(5)}
                                     className="w-full py-3 text-muted-foreground text-sm mt-2 hover:text-foreground transition-colors"
                                 >
                                     Skip for now
@@ -317,8 +352,8 @@ export default function SetupPage() {
                             </CardWrapper>
                         )}
 
-                        {/* Step 4: Summary */}
-                        {step === 4 && (
+                        {/* Step 5: Summary */}
+                        {step === 5 && (
                             <CardWrapper>
                                 <h1 className="text-3xl font-bold mb-2 text-center text-foreground">Summary</h1>
                                 <p className="text-muted-foreground text-base mb-8 text-center">Review your configuration.</p>
@@ -345,6 +380,15 @@ export default function SetupPage() {
                                         </div>
                                         <button onClick={() => setStep(2)} className="p-2 text-muted-foreground hover:text-foreground"><Edit2 className="w-4 h-4" /></button>
                                     </div>
+                                    <div className="p-4 flex justify-between items-center">
+                                        <div>
+                                            <div className="text-xs text-muted-foreground">Language</div>
+                                            <div className="text-sm font-medium text-foreground">
+                                                {LANGUAGES.find(l => l.code === config.language)?.flag} {LANGUAGES.find(l => l.code === config.language)?.name || 'English'}
+                                            </div>
+                                        </div>
+                                        <button onClick={() => setStep(3)} className="p-2 text-muted-foreground hover:text-foreground"><Edit2 className="w-4 h-4" /></button>
+                                    </div>
                                     {(resumeFile || config.job_description) && (
                                         <div className="p-4 flex justify-between items-center">
                                             <div>
@@ -353,7 +397,7 @@ export default function SetupPage() {
                                                     {resumeFile ? "Resume" : ""}{resumeFile && config.job_description ? " + " : ""}{config.job_description ? "JD" : ""} added
                                                 </div>
                                             </div>
-                                            <button onClick={() => setStep(3)} className="p-2 text-muted-foreground hover:text-foreground"><Edit2 className="w-4 h-4" /></button>
+                                            <button onClick={() => setStep(4)} className="p-2 text-muted-foreground hover:text-foreground"><Edit2 className="w-4 h-4" /></button>
                                         </div>
                                     )}
                                 </div>
