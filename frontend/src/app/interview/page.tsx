@@ -2,9 +2,9 @@
 
 import { useEffect, useState, useRef, Suspense } from "react";
 import { useSearchParams } from "next/navigation";
-import { api, sendChat, uploadAudio } from "@/lib/api";
+import { api, sendChat, uploadAudio, getSettings } from "@/lib/api";
 import { motion, AnimatePresence } from "framer-motion";
-import { Mic, MicOff, Video, VideoOff, PhoneOff, ArrowLeft, Volume2, Maximize2, Minimize2 } from "lucide-react";
+import { Mic, MicOff, Video, VideoOff, PhoneOff, ArrowLeft, Volume2, Maximize2, Minimize2, Timer } from "lucide-react";
 import { useRouter } from "next/navigation";
 import Link from "next/link";
 import clsx from "clsx";
@@ -38,6 +38,12 @@ function InterviewContent() {
     // Dynamic Caption State
     const [charIndex, setCharIndex] = useState(0);
 
+    // Timer State
+    const [enableTimer, setEnableTimer] = useState(false);
+    const [timePerQuestion, setTimePerQuestion] = useState(120);
+    const [timeRemaining, setTimeRemaining] = useState(120);
+    const [timerActive, setTimerActive] = useState(false);
+
     // Refs
     const videoRef = useRef<HTMLVideoElement>(null);
     const recognitionRef = useRef<any>(null);
@@ -50,6 +56,42 @@ function InterviewContent() {
             synthesisRef.current = window.speechSynthesis;
         }
     }, []);
+
+    // Load user settings for timer
+    useEffect(() => {
+        getSettings().then(settings => {
+            setEnableTimer(settings.enable_timer);
+            setTimePerQuestion(settings.time_per_question);
+            setTimeRemaining(settings.time_per_question);
+        }).catch(() => {
+            // User not logged in or settings not available, use defaults
+        });
+    }, []);
+
+    // Timer countdown effect
+    useEffect(() => {
+        if (!enableTimer || !timerActive || isSpeaking) return;
+
+        const interval = setInterval(() => {
+            setTimeRemaining(prev => {
+                if (prev <= 1) {
+                    // Time's up - could auto-submit or just show warning
+                    return 0;
+                }
+                return prev - 1;
+            });
+        }, 1000);
+
+        return () => clearInterval(interval);
+    }, [enableTimer, timerActive, isSpeaking]);
+
+    // Reset timer when AI finishes speaking (new question)
+    useEffect(() => {
+        if (!isSpeaking && enableTimer && hasJoined) {
+            setTimeRemaining(timePerQuestion);
+            setTimerActive(true);
+        }
+    }, [isSpeaking, enableTimer, hasJoined, timePerQuestion]);
 
     // Handle Join Call
     const handleJoinCall = async () => {
@@ -342,6 +384,28 @@ function InterviewContent() {
                     <div className="w-2 h-2 rounded-full bg-green-500 animate-pulse shadow-[0_0_10px_#22c55e]" />
                     <span className="text-xs font-medium text-white/80 tracking-wide uppercase">Live Interview</span>
                 </div>
+
+                {/* Timer Display */}
+                {enableTimer && hasJoined && (
+                    <motion.div
+                        initial={{ opacity: 0, scale: 0.9 }}
+                        animate={{ opacity: 1, scale: 1 }}
+                        className={clsx(
+                            "flex items-center gap-2 px-4 py-2 rounded-full backdrop-blur-xl border",
+                            timeRemaining <= 30
+                                ? "bg-red-500/20 border-red-500/50 text-red-400"
+                                : timeRemaining <= 60
+                                    ? "bg-yellow-500/20 border-yellow-500/50 text-yellow-400"
+                                    : "bg-white/5 border-white/10 text-white/80"
+                        )}
+                    >
+                        <Timer className={clsx("w-4 h-4", timeRemaining <= 30 && "animate-pulse")} />
+                        <span className="text-sm font-mono font-medium">
+                            {Math.floor(timeRemaining / 60)}:{(timeRemaining % 60).toString().padStart(2, '0')}
+                        </span>
+                    </motion.div>
+                )}
+
                 <button
                     onClick={() => setIsFullScreen(!isFullScreen)}
                     className="p-3 rounded-full bg-white/5 backdrop-blur-md hover:bg-white/10 transition-colors text-white/60 hover:text-white"
