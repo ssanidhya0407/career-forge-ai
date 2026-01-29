@@ -456,11 +456,43 @@ class FeedbackRequest(BaseModel):
 async def get_feedback(req: FeedbackRequest):
     session_id = req.session_id
     
+    # First check if feedback already exists in database
+    db = get_db()
+    docs = db.collection('interviews').where('session_id', '==', session_id).stream()
+    
+    existing_interview = None
+    existing_doc_id = None
+    for doc in docs:
+        existing_interview = doc.to_dict()
+        existing_doc_id = doc.id
+        break
+    
+    if not existing_interview:
+        raise HTTPException(status_code=404, detail="Session not found")
+    
+    # If feedback already exists (score is set), return cached data
+    if existing_interview.get('score') is not None:
+        return {
+            "score": existing_interview.get('score', 0),
+            "summary": existing_interview.get('summary', ''),
+            "strengths": existing_interview.get('strengths', []),
+            "improvements": existing_interview.get('improvements', []),
+            "communication_score": existing_interview.get('communication_score', 0),
+            "technical_score": existing_interview.get('technical_score', 0),
+            "problem_solving_score": existing_interview.get('problem_solving_score', 0),
+            "culture_fit_score": existing_interview.get('culture_fit_score', 0),
+            "improvement_tips": existing_interview.get('improvement_tips', []),
+            "voice_metrics": existing_interview.get('voice_metrics'),
+            "transcript": existing_interview.get('transcript', []),
+            "audio_urls": existing_interview.get('audio_urls', {})
+        }
+    
+    # No cached feedback, need to generate it
     state = sessions.get(session_id)
     if not state:
         state = await restore_session(session_id)
         if not state:
-            raise HTTPException(status_code=404, detail="Session not found")
+            raise HTTPException(status_code=404, detail="Session state not found")
     
     transcript = "\n".join([f"{m.role.upper()}: {m.content}" for m in state.conversation_history])
     
