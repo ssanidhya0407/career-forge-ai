@@ -32,9 +32,22 @@ from email_service import EmailService
 
 app = FastAPI(title="CareerForge AI API", version="2.0.0")
 
+# CORS Configuration
+origins = os.getenv("CORS_ALLOWED_ORIGINS", "").split(",")
+origins = [origin.strip() for origin in origins if origin.strip()]
+
+# Default origins if none specified
+if not origins:
+    origins = [
+        "http://localhost:3000",
+        "http://127.0.0.1:3000",
+        "https://career-forge-ai-beige.vercel.app",
+        "https://career-forge-ai-production.up.railway.app"
+    ]
+
 app.add_middleware(
     CORSMiddleware,
-    allow_origins=["*"],
+    allow_origins=origins,
     allow_credentials=True,
     allow_methods=["*"],
     allow_headers=["*"],
@@ -44,6 +57,7 @@ app.add_middleware(
 UPLOAD_DIR = "uploads"
 os.makedirs(UPLOAD_DIR, exist_ok=True)
 app.mount("/uploads", StaticFiles(directory=UPLOAD_DIR), name="uploads")
+
 
 # Services
 email_service = EmailService()

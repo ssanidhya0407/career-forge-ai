@@ -2,12 +2,12 @@ import type { Metadata } from "next";
 import "./globals.css";
 import { ThemeProvider } from "@/components/ThemeProvider";
 import { AuthProvider } from "@/components/AuthProvider";
-import { ThemeToggleButton } from "@/components/ui/ThemeToggle";
+
 import { Analytics } from "@vercel/analytics/next";
 
 
 export const metadata: Metadata = {
-  title: "CareerForge.ai | AI Interview Coach",
+  title: "CareerFlow.ai | AI Interview Coach",
   description: "Master your next interview with an intelligent AI agent.",
 };
 
@@ -27,9 +27,7 @@ export default function RootLayout({
       <body className="font-sans antialiased bg-background text-foreground">
         <ThemeProvider>
           <AuthProvider>
-            <div className="fixed top-8 right-6 z-[100]">
-              <ThemeToggleButton />
-            </div>
+
             {children}
           </AuthProvider>
         </ThemeProvider>

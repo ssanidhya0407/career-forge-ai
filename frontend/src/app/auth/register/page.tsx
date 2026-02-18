@@ -4,7 +4,7 @@ import { useState } from "react";
 import { useRouter } from "next/navigation";
 import { motion, AnimatePresence } from "framer-motion";
 import { useAuth } from "@/components/AuthProvider";
-import { Mail, Lock, User, Loader2, ArrowRight, Sparkles } from "lucide-react";
+import { Mail, Lock, User, Loader2, ArrowRight, Zap } from "lucide-react";
 import Link from "next/link";
 
 export default function RegisterPage() {
@@ -102,7 +102,7 @@ export default function RegisterPage() {
             >
                 <div className="text-center mb-8">
                     <div className="inline-flex items-center justify-center w-16 h-16 rounded-2xl bg-secondary dark:bg-white/5 mb-4 border border-border dark:border-white/5">
-                        <Sparkles className="w-8 h-8 text-primary" />
+                        <Zap className="w-8 h-8 text-primary" />
                     </div>
                     <h1 className="text-3xl font-bold mb-2">Create Account</h1>
                     <p className="text-muted-foreground">Start your interview practice journey</p>

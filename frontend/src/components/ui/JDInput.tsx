@@ -2,7 +2,7 @@
 
 import { useState } from "react";
 import { motion } from "framer-motion";
-import { FileText, Link2, Loader2, CheckCircle, Sparkles } from "lucide-react";
+import { FileText, Link2, Loader2, CheckCircle, Zap } from "lucide-react";
 import { parseJobDescription } from "@/lib/api";
 import clsx from "clsx";
 
@@ -145,7 +145,7 @@ export function JDInput({ onJDParsed, className }: JDInputProps) {
                             </>
                         ) : (
                             <>
-                                <Sparkles className="w-4 h-4" />
+                                <Zap className="w-4 h-4" />
                                 Analyze Job Description
                             </>
                         )}

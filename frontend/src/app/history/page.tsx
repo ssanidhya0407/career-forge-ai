@@ -12,7 +12,7 @@ import {
     Target,
     ArrowUpRight,
     Loader2,
-    Sparkles,
+    Zap,
     ChevronLeft
 } from "lucide-react";
 import Link from "next/link";
@@ -151,7 +151,7 @@ export default function HistoryPage() {
                     <div className="space-y-6">
                         {interviews.length === 0 ? (
                             <div className="text-center py-16 bg-white/50 dark:bg-zinc-900/50 backdrop-blur-xl rounded-[32px] border border-border dark:border-white/10">
-                                <Sparkles className="w-12 h-12 text-muted-foreground mx-auto mb-4" />
+                                <Zap className="w-12 h-12 text-muted-foreground mx-auto mb-4" />
                                 <p className="text-muted-foreground">No interviews found.</p>
                             </div>
                         ) : (

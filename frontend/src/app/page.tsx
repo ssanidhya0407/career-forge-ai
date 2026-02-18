@@ -69,21 +69,23 @@ export default function Home() {
           </motion.div>
 
 
+
+
           {/* This pill stays visible when collapsed */}
           <motion.div
             animate={{
               backgroundColor: hidden ? "var(--secondary)" : "transparent",
-              paddingLeft: hidden ? 16 : 16,
-              paddingRight: hidden ? 16 : 16
+              paddingLeft: 0,
+              paddingRight: 0
             }}
             className="rounded-full flex items-center"
           >
             {isLoggedIn ? (
-              <Link href="/dashboard" className="py-2 rounded-full text-sm font-medium text-muted-foreground hover:text-foreground transition-colors whitespace-nowrap block">
+              <Link href="/dashboard" className="px-4 py-2 rounded-full text-sm font-medium text-muted-foreground hover:text-foreground transition-colors whitespace-nowrap block">
                 {hidden ? "Home" : "Profile"}
               </Link>
             ) : (
-              <Link href="/auth/register" className="py-2 px-3 rounded-full text-sm font-medium text-foreground bg-secondary/50 dark:bg-white/10 hover:bg-secondary/80 transition-colors whitespace-nowrap block">
+              <Link href="/auth/register" className="px-4 py-2 rounded-full text-sm font-medium text-foreground bg-secondary/50 dark:bg-white/10 hover:bg-secondary/80 transition-colors whitespace-nowrap block">
                 {hidden ? "Home" : "Sign Up"}
               </Link>
             )}
@@ -134,181 +136,202 @@ export default function Home() {
         </motion.div>
       </section>
 
-      {/* Bento Grid Features - Exact Match to Images */}
+      {/* Bento Grid Features - 2:1 -> 1:2 -> 1 Rhythm */}
       <section id="features" className="py-24 px-6 relative z-10">
-        <div className="max-w-6xl mx-auto">
+        <div className="max-w-6xl mx-auto grid grid-cols-1 md:grid-cols-3 gap-6">
 
-          <div className="grid grid-cols-1 md:grid-cols-5 gap-6 mb-6">
-            {/* Large Card (Left) - Mimics User Profile Card */}
-            <motion.div
-              initial={{ opacity: 0, y: 20 }}
-              whileInView={{ opacity: 1, y: 0 }}
-              viewport={{ once: true }}
-              className="md:col-span-3 bg-card dark:bg-[#0C0C0C] rounded-[40px] p-10 flex flex-col justify-between min-h-[500px] border border-border dark:border-white/5 relative group overflow-hidden shadow-sm dark:shadow-none"
-            >
-              <div className="relative z-10">
-                <div className="w-20 h-20 rounded-full bg-secondary dark:bg-[#111] mb-8 border border-border dark:border-white/10 overflow-hidden flex items-center justify-center">
-                  <Logo className="w-10 h-10 text-primary" />
-                </div>
-                <h2 className="text-4xl font-bold mb-6 leading-tight text-card-foreground">
-                  Bridging Resume & <br /> Job Description
-                </h2>
-                <p className="text-muted-foreground text-lg leading-relaxed max-w-md">
-                  Unlike generic tools, we build a knowledge graph of your experience and map it directly to the target role's requirements.
-                </p>
+          {/* --- ROW 1 (2:1) --- */}
+
+          {/* Card 1: Bridging Resume (2 cols) */}
+          <motion.div
+            initial={{ opacity: 0, y: 20 }}
+            whileInView={{ opacity: 1, y: 0 }}
+            viewport={{ once: true }}
+            className="md:col-span-2 bg-card dark:bg-[#0C0C0C] rounded-[40px] p-10 flex flex-col justify-between min-h-[400px] border border-border dark:border-white/5 relative group overflow-hidden shadow-sm dark:shadow-none"
+          >
+            <div className="relative z-10">
+              <div className="w-16 h-16 rounded-full bg-secondary dark:bg-[#111] mb-6 border border-border dark:border-white/10 overflow-hidden flex items-center justify-center">
+                <Logo className="w-8 h-8 text-primary" />
               </div>
+              <h2 className="text-3xl md:text-4xl font-bold mb-4 leading-tight text-card-foreground">
+                Bridging Resume & <br /> Job Description
+              </h2>
+              <p className="text-muted-foreground text-lg leading-relaxed max-w-md">
+                We map your experience directly to the target role's requirements using an advanced knowledge graph.
+              </p>
+            </div>
 
-              {/* Bottom Stats */}
-              <div className="relative z-10 grid grid-cols-3 gap-8 mt-12 pt-8 border-t border-border dark:border-white/5">
-                <div>
-                  <div className="text-3xl font-bold text-foreground mb-1">5+</div>
-                  <div className="text-xs font-bold text-muted-foreground tracking-wider">FORMATS</div>
-                </div>
-                <div>
-                  <div className="text-3xl font-bold text-blue-500 mb-1">25+</div>
-                  <div className="text-xs font-bold text-muted-foreground tracking-wider">METRICS</div>
-                </div>
-                <div>
-                  <div className="text-3xl font-bold text-green-500 mb-1">98%</div>
-                  <div className="text-xs font-bold text-muted-foreground tracking-wider">MATCH</div>
-                </div>
+            {/* Bottom Stats used to be here, keep simple now? or restore? Restoring simplified stats to fill space */}
+            <div className="relative z-10 grid grid-cols-3 gap-4 mt-8 pt-6 border-t border-border dark:border-white/5">
+              <div>
+                <div className="text-2xl font-bold text-foreground">5+</div>
+                <div className="text-[10px] font-bold text-muted-foreground tracking-wider">FORMATS</div>
               </div>
+              <div>
+                <div className="text-2xl font-bold text-blue-500">25+</div>
+                <div className="text-[10px] font-bold text-muted-foreground tracking-wider">METRICS</div>
+              </div>
+              <div>
+                <div className="text-2xl font-bold text-green-500">98%</div>
+                <div className="text-[10px] font-bold text-muted-foreground tracking-wider">MATCH</div>
+              </div>
+            </div>
 
-              {/* Background Effect */}
-              <div className="absolute right-0 bottom-0 w-full h-full bg-gradient-to-t from-primary/5 to-transparent opacity-50 pointer-events-none" />
-            </motion.div>
+            <div className="absolute right-0 bottom-0 w-full h-full bg-gradient-to-t from-primary/5 to-transparent opacity-50 pointer-events-none" />
+          </motion.div>
 
-            {/* List Card (Right) - Mimics Selected Work */}
-            <motion.div
-              initial={{ opacity: 0, y: 20 }}
-              whileInView={{ opacity: 1, y: 0 }}
-              viewport={{ once: true }}
-              transition={{ delay: 0.1 }}
-              className="md:col-span-2 bg-card dark:bg-[#0C0C0C] rounded-[40px] p-10 flex flex-col border border-border dark:border-white/5 relative shadow-sm dark:shadow-none"
-            >
-              <div className="flex justify-between items-start mb-10">
-                <div className="w-12 h-12 rounded-full bg-secondary dark:bg-[#151515] flex items-center justify-center text-green-500">
-                  <BrainCircuit className="w-6 h-6" />
+          {/* Card 2: Core Features (1 col) */}
+          <motion.div
+            initial={{ opacity: 0, y: 20 }}
+            whileInView={{ opacity: 1, y: 0 }}
+            viewport={{ once: true }}
+            transition={{ delay: 0.1 }}
+            className="md:col-span-1 bg-card dark:bg-[#0C0C0C] rounded-[40px] p-8 flex flex-col border border-border dark:border-white/5 relative shadow-sm dark:shadow-none"
+          >
+            <div className="w-12 h-12 rounded-full bg-secondary dark:bg-[#151515] flex items-center justify-center text-green-500 mb-6">
+              <BrainCircuit className="w-6 h-6" />
+            </div>
+
+            <h3 className="text-xl font-bold mb-2">Core Features</h3>
+            <p className="text-muted-foreground text-sm mb-6">Top tools for your success.</p>
+
+            <div className="flex-1 space-y-3">
+              {[
+                { title: "Resume Parsing" },
+                { title: "Speech Analysis" },
+                { title: "Panel Simulation" },
+                { title: "Detailed Reports" }
+              ].map((item, i) => (
+                <div key={i} className="flex items-center justify-between p-3 rounded-xl bg-secondary dark:bg-[#111] border border-border dark:border-white/5">
+                  <span className="font-semibold text-sm text-foreground">{item.title}</span>
+                  <CheckCircle2 className="w-4 h-4 text-green-500/80" />
                 </div>
-                <span className="text-xs font-medium text-muted-foreground uppercase tracking-widest mt-2">Capabilities</span>
-              </div>
+              ))}
+            </div>
+          </motion.div>
 
-              <h3 className="text-2xl font-bold mb-2">Core Features</h3>
-              <p className="text-muted-foreground text-sm mb-8">Top tools for your success.</p>
 
-              <div className="flex-1 space-y-4">
-                {[
-                  { title: "Resume Parsing", subtitle: "Automated Extraction" },
-                  { title: "Speech Analysis", subtitle: "Pace & Filler Detection" },
-                  { title: "Panel Simulation", subtitle: "HR, Tech & Product Personas" },
-                  { title: "Detailed Reports", subtitle: "PDF Export" }
-                ].map((item, i) => (
-                  <div key={i} className="group flex items-center justify-between p-4 rounded-2xl bg-secondary dark:bg-[#111] border border-border dark:border-white/5 hover:bg-secondary/80 dark:hover:bg-[#1a1a1a] transition-colors cursor-default">
-                    <div>
-                      <div className="font-semibold text-sm text-foreground">{item.title}</div>
-                      <div className="text-xs text-muted-foreground">{item.subtitle}</div>
-                    </div>
-                    <ArrowUpRight className="w-4 h-4 text-muted-foreground group-hover:text-foreground transition-colors" />
-                  </div>
-                ))}
-              </div>
-            </motion.div>
-          </div>
+          {/* --- ROW 2 (1:2) --- */}
 
-          {/* Bottom Row - 3 Cards */}
-          <div className="grid grid-cols-1 md:grid-cols-3 gap-6">
-            {/* Card 1: Experience */}
-            <motion.div
-              initial={{ opacity: 0, y: 20 }}
-              whileInView={{ opacity: 1, y: 0 }}
-              viewport={{ once: true }}
-              transition={{ delay: 0.2 }}
-              className="bg-card dark:bg-[#0C0C0C] rounded-[40px] p-8 border border-border dark:border-white/5 hover:bg-secondary/50 dark:hover:bg-[#111] transition-colors group shadow-sm dark:shadow-none"
-            >
+          {/* Card 3: Experience (1 col) */}
+          <motion.div
+            initial={{ opacity: 0, y: 20 }}
+            whileInView={{ opacity: 1, y: 0 }}
+            viewport={{ once: true }}
+            transition={{ delay: 0.2 }}
+            className="md:col-span-1 bg-card dark:bg-[#0C0C0C] rounded-[40px] p-8 border border-border dark:border-white/5 hover:bg-secondary/50 dark:hover:bg-[#111] transition-colors group shadow-sm dark:shadow-none flex flex-col justify-between"
+          >
+            <div>
               <div className="w-12 h-12 rounded-full bg-secondary dark:bg-[#151515] flex items-center justify-center mb-6">
                 <Briefcase className="w-5 h-5 text-orange-400" />
               </div>
               <h3 className="text-xl font-bold mb-3">Real Experience</h3>
-              <p className="text-sm text-muted-foreground leading-relaxed mb-6">
-                Simulate interviews from top tech firms including Google, Amazon, and Microsoft.
+              <p className="text-sm text-muted-foreground leading-relaxed">
+                Simulate interviews from top tech firms.
               </p>
-              <div className="flex gap-4 items-center mt-auto">
-                <div className="relative w-8 h-8 rounded-full bg-white p-1.5 flex items-center justify-center overflow-hidden border border-border">
-                  <img src="/logos/google.png" alt="Google" className="object-contain w-full h-full" />
-                </div>
-                <div className="relative w-8 h-8 rounded-full bg-white p-1.5 flex items-center justify-center overflow-hidden border border-border">
-                  <img src="/logos/microsoft.png" alt="Microsoft" className="object-contain w-full h-full" />
-                </div>
-                <div className="relative w-8 h-8 rounded-full bg-white p-1.5 flex items-center justify-center overflow-hidden border border-border">
-                  <img src="/logos/amazon.png" alt="Amazon" className="object-contain w-full h-full" />
-                </div>
-                <div className="relative w-8 h-8 rounded-full bg-white p-1.5 flex items-center justify-center overflow-hidden border border-border">
-                  <img src="/logos/uber.png" alt="Uber" className="object-contain w-full h-full" />
-                </div>
+            </div>
+            <div className="flex gap-3 items-center mt-6 flex-wrap">
+              {/* Simplified Logos for 1 col */}
+              <div className="w-8 h-8 rounded-full bg-white p-1.5 flex items-center justify-center overflow-hidden border border-border">
+                <img src="/logos/google.png" alt="G" className="object-contain w-full h-full" />
               </div>
-            </motion.div>
+              <div className="w-8 h-8 rounded-full bg-white p-1.5 flex items-center justify-center overflow-hidden border border-border">
+                <img src="/logos/amazon.png" alt="A" className="object-contain w-full h-full" />
+              </div>
+              <div className="w-8 h-8 rounded-full bg-white p-1.5 flex items-center justify-center overflow-hidden border border-border">
+                <img src="/logos/microsoft.png" alt="M" className="object-contain w-full h-full" />
+              </div>
+            </div>
+          </motion.div>
 
-            {/* Card 2: Badges */}
+          {/* Card 4: DSA Forge (2 cols) */}
+          <Link href="http://localhost:3001" target="_blank" className="md:col-span-2">
             <motion.div
               initial={{ opacity: 0, y: 20 }}
               whileInView={{ opacity: 1, y: 0 }}
               viewport={{ once: true }}
               transition={{ delay: 0.3 }}
-              className="bg-card dark:bg-[#0C0C0C] rounded-[40px] p-8 border border-border dark:border-white/5 hover:bg-secondary/50 dark:hover:bg-[#111] transition-colors shadow-sm dark:shadow-none"
+              className="bg-card dark:bg-[#0C0C0C] rounded-[40px] p-10 border border-border dark:border-white/5 hover:border-purple-500/30 hover:bg-purple-500/5 transition-all h-full flex flex-col md:flex-row items-start md:items-center justify-between group cursor-pointer shadow-sm dark:shadow-none relative overflow-hidden"
             >
-              <div className="w-12 h-12 rounded-full bg-secondary dark:bg-[#151515] flex items-center justify-center mb-6">
-                <Award className="w-5 h-5 text-purple-500" />
-              </div>
-              <h3 className="text-xl font-bold mb-3">Earn Badges</h3>
-              <p className="text-sm text-muted-foreground leading-relaxed mb-6">
-                Showcase your mastery in Communication, Tech, and Leadership.
-              </p>
-              <div className="flex gap-4 items-center">
-                <div className="w-10 h-10 rounded-full overflow-hidden bg-secondary dark:bg-[#111] p-1">
-                  <img src="/badges/communication.png" alt="Communication" className="w-full h-full object-cover" />
+
+
+              <div className="relative z-10 max-w-md">
+                <div className="flex items-center gap-4 mb-6">
+                  <div className="w-12 h-12 rounded-full bg-purple-500/10 flex items-center justify-center">
+                    <Zap className="w-6 h-6 text-purple-500" fill="currentColor" />
+                  </div>
+                  <div className="px-3 py-1 rounded-full bg-purple-500/10 text-purple-500 text-xs font-bold uppercase tracking-wider">
+                    New App
+                  </div>
                 </div>
-                <div className="w-10 h-10 rounded-full overflow-hidden bg-secondary dark:bg-[#111] p-1">
-                  <img src="/badges/technical.png" alt="Technical" className="w-full h-full object-cover" />
-                </div>
-                <div className="w-10 h-10 rounded-full overflow-hidden bg-secondary dark:bg-[#111] p-1">
-                  <img src="/badges/leadership.png" alt="Leadership" className="w-full h-full object-cover" />
+
+                <h3 className="text-3xl font-bold mb-3">AlgoFlow</h3>
+                <p className="text-muted-foreground leading-relaxed mb-6">
+                  Switch to our dedicated high-performance environment for mastering Data Structures & Algorithms. 45+ Patterns, Execution Engine & Roadmap.
+                </p>
+
+                <div className="flex items-center text-purple-500 font-bold group-hover:gap-2 transition-all">
+                  Launch AlgoFlow <ArrowRight className="w-5 h-5 ml-2" />
                 </div>
               </div>
             </motion.div>
+          </Link>
 
-            {/* Card 3: Connect/Start */}
-            <Link href="/setup">
-              <motion.div
-                initial={{ opacity: 0, y: 20 }}
-                whileInView={{ opacity: 1, y: 0 }}
-                viewport={{ once: true }}
-                transition={{ delay: 0.4 }}
-                className="bg-card dark:bg-[#0C0C0C] rounded-[40px] p-8 border border-border dark:border-white/5 hover:bg-secondary/50 dark:hover:bg-[#111] transition-colors h-full flex flex-col justify-between group shadow-sm dark:shadow-none"
-              >
-                <div>
-                  <div className="w-12 h-12 rounded-full bg-secondary dark:bg-[#151515] flex items-center justify-center mb-6">
-                    <Zap className="w-5 h-5 text-pink-500" />
-                  </div>
-                  <h3 className="text-xl font-bold mb-3">Start Now</h3>
-                  <p className="text-sm text-muted-foreground leading-relaxed">
-                    Why wait? Launch your first session in seconds.
+
+          {/* --- ROW 3 (1) --- */}
+
+          {/* Card 5: Badges & Start (Full Width) */}
+          <Link href="/setup" className="md:col-span-3">
+            <motion.div
+              initial={{ opacity: 0, y: 20 }}
+              whileInView={{ opacity: 1, y: 0 }}
+              viewport={{ once: true }}
+              transition={{ delay: 0.4 }}
+              className="bg-card dark:bg-[#0C0C0C] rounded-[40px] p-8 md:p-12 border border-border dark:border-white/5 hover:bg-secondary/50 dark:hover:bg-[#111] transition-colors relative group shadow-sm dark:shadow-none overflow-hidden"
+            >
+              <div className="absolute top-0 right-0 w-1/2 h-full bg-gradient-to-l from-primary/5 to-transparent opacity-0 group-hover:opacity-100 transition-opacity duration-500" />
+
+              <div className="relative z-10 flex flex-col md:flex-row items-center justify-between gap-8">
+
+                {/* Left: Content */}
+                <div className="text-center md:text-left">
+                  <h3 className="text-3xl font-bold mb-3">Ready to Earn Your Badges?</h3>
+                  <p className="text-lg text-muted-foreground leading-relaxed max-w-xl">
+                    Prove your skills in Communication, Technical Knowledge, and Leadership. Start your first simulated interview today.
                   </p>
                 </div>
-                <div className="flex justify-end mt-4">
-                  <div className="w-10 h-10 rounded-full bg-primary flex items-center justify-center group-hover:scale-110 transition-transform shadow-lg shadow-primary/30">
-                    <ArrowRight className="w-5 h-5 text-primary-foreground" />
+
+                {/* Right: Visuals & Button */}
+                <div className="flex flex-col md:flex-row items-center gap-8">
+                  {/* Badges */}
+                  <div className="flex gap-[-10px]">
+                    <div className="w-14 h-14 rounded-full bg-secondary dark:bg-[#111] p-1 border-2 border-background shadow-lg -ml-4 first:ml-0 z-0 hover:z-10 transition-all hover:scale-110">
+                      <img src="/badges/communication.png" alt="Comm" className="w-full h-full object-cover rounded-full" />
+                    </div>
+                    <div className="w-14 h-14 rounded-full bg-secondary dark:bg-[#111] p-1 border-2 border-background shadow-lg -ml-4 z-10 hover:z-20 transition-all hover:scale-110">
+                      <img src="/badges/technical.png" alt="Tech" className="w-full h-full object-cover rounded-full" />
+                    </div>
+                    <div className="w-14 h-14 rounded-full bg-secondary dark:bg-[#111] p-1 border-2 border-background shadow-lg -ml-4 z-20 hover:z-30 transition-all hover:scale-110">
+                      <img src="/badges/leadership.png" alt="Lead" className="w-full h-full object-cover rounded-full" />
+                    </div>
+                  </div>
+
+                  {/* Button */}
+                  <div className="px-8 py-4 bg-primary text-primary-foreground rounded-full font-bold text-lg hover:scale-105 transition-transform shadow-lg shadow-primary/25 whitespace-nowrap">
+                    Start Interview
                   </div>
                 </div>
-              </motion.div>
-            </Link>
-          </div>
+
+              </div>
+            </motion.div>
+          </Link>
 
         </div>
       </section>
 
       {/* Footer */}
       <footer className="py-12 bg-background border-t border-border mt-auto text-center relative z-10">
-        <p className="text-muted-foreground text-sm">© 2026 CareerForge.ai</p>
+        <p className="text-muted-foreground text-sm">© 2026 CareerFlow.ai</p>
       </footer>
     </div>
   );

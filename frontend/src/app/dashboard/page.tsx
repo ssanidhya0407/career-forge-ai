@@ -16,7 +16,6 @@ import {
     Target,
     Zap,
     BarChart3,
-    Sparkles,
     Settings,
     ArrowUpRight
 } from "lucide-react";
@@ -277,7 +276,7 @@ export default function DashboardPage() {
 
                             {interviews.length === 0 ? (
                                 <div className="text-center py-16">
-                                    <Sparkles className="w-12 h-12 text-muted-foreground mx-auto mb-4" />
+                                    <Zap className="w-12 h-12 text-muted-foreground mx-auto mb-4" />
                                     <p className="text-muted-foreground mb-2">No interviews yet</p>
                                     <p className="text-xs text-muted-foreground">Start your first interview to see history</p>
                                 </div>
@@ -364,7 +363,7 @@ export default function DashboardPage() {
                                 className="bg-white/50 dark:bg-zinc-900/50 backdrop-blur-xl rounded-[40px] p-8 border border-border dark:border-white/10 hover:bg-white/80 dark:hover:bg-zinc-900/80 transition-colors shadow-sm"
                             >
                                 <div className="w-12 h-12 rounded-full bg-secondary dark:bg-white/5 flex items-center justify-center mb-6 border border-border dark:border-white/10">
-                                    <Sparkles className="w-5 h-5 text-purple-500" />
+                                    <Zap className="w-5 h-5 text-purple-500" />
                                 </div>
                                 <h3 className="text-xl font-bold mb-3">AI Tips</h3>
                                 <p className="text-sm text-muted-foreground leading-relaxed">

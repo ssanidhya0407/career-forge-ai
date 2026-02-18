@@ -248,3 +248,6 @@ export const isAuthenticated = (): boolean => {
     }
     return false;
 };
+
+
+// End of Interview API

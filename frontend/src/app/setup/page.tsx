@@ -5,7 +5,7 @@ import { useRouter } from "next/navigation";
 import Link from "next/link";
 import { startInterview, getSettings } from "@/lib/api";
 import { motion, AnimatePresence } from "framer-motion";
-import { ChevronLeft, ArrowRight, Edit2, Check, FileText, Briefcase, Sparkles, Upload, X, ChevronDown } from "lucide-react";
+import { ChevronLeft, ArrowRight, Edit2, Check, FileText, Briefcase, Zap, Upload, X, ChevronDown } from "lucide-react";
 import { useAuth } from "@/components/AuthProvider";
 import clsx from "clsx";
 
@@ -283,7 +283,7 @@ export default function SetupPage() {
                         {step === 4 && (
                             <CardWrapper>
                                 <div className="flex items-center justify-center gap-2 mb-2">
-                                    <Sparkles className="w-6 h-6 text-purple-500" />
+                                    <Zap className="w-6 h-6 text-purple-500" />
                                     <h1 className="text-3xl font-bold text-foreground">AI Context</h1>
                                 </div>
                                 <p className="text-muted-foreground text-base mb-8 text-center">Optional: Personalize your interview</p>
