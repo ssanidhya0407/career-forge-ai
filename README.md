@@ -1,6 +1,6 @@
-# CareerForge.ai
+# CareerForge AI
 
-**CareerForge.ai** is an intelligent AI Interview Coach that helps users practice for job interviews with a realistic AI agent.
+**CareerForge AI** is an intelligent AI Interview Coach that helps users practice for job interviews with a realistic AI agent.
 
 ## Features
 - **Role-Specific Interviews**: Configure the agent for any job role (e.g., Software Engineer, Product Manager).
