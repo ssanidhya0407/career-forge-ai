@@ -42,6 +42,7 @@ function InterviewContent() {
     const [timePerQuestion, setTimePerQuestion] = useState(120);
     const [timeRemaining, setTimeRemaining] = useState(120);
     const [timerActive, setTimerActive] = useState(false);
+    const [initialMessage, setInitialMessage] = useState("");
 
     // Refs
     const videoRef = useRef<HTMLVideoElement>(null);
@@ -49,12 +50,28 @@ function InterviewContent() {
     const synthesisRef = useRef<SpeechSynthesis | null>(null);
     const mediaRecorderRef = useRef<MediaRecorder | null>(null);
     const audioChunksRef = useRef<Blob[]>([]);
+    const initialMessagePlayedRef = useRef(false);
 
     useEffect(() => {
         if (typeof window !== 'undefined') {
             synthesisRef.current = window.speechSynthesis;
         }
     }, []);
+
+    // Restore the first AI prompt produced by /api/interview/start.
+    useEffect(() => {
+        if (!sessionId || typeof window === "undefined") return;
+        const key = `initialInterviewMessage:${sessionId}`;
+        const storedMessage = sessionStorage.getItem(key);
+        if (!storedMessage) return;
+
+        setInitialMessage(storedMessage);
+        setMessages(prev => {
+            if (prev.length > 0) return prev;
+            return [{ role: "model", content: storedMessage }];
+        });
+        sessionStorage.removeItem(key);
+    }, [sessionId]);
 
     // Load user settings for timer
     useEffect(() => {
@@ -283,6 +300,13 @@ function InterviewContent() {
 
         synthesisRef.current.speak(utterance);
     };
+
+    // Speak the first interviewer prompt right after user gesture (Join).
+    useEffect(() => {
+        if (!hasJoined || !initialMessage || initialMessagePlayedRef.current) return;
+        initialMessagePlayedRef.current = true;
+        speakText(initialMessage);
+    }, [hasJoined, initialMessage]);
 
     // Helper: Get Current Sentence based on charIndex
     const getCurrentSentence = (text: string, index: number) => {

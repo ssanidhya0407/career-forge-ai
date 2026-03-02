@@ -79,6 +79,9 @@ export default function SetupPage() {
         setLoading(true);
         try {
             const data = await startInterview(config);
+            if (typeof window !== "undefined" && data?.session_id && data?.message) {
+                sessionStorage.setItem(`initialInterviewMessage:${data.session_id}`, data.message);
+            }
             router.push(`/interview?session_id=${data.session_id}`);
         } catch {
             alert("Connection error.");
