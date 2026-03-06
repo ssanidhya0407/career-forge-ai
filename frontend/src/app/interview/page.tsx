@@ -2,7 +2,7 @@
 
 import { useEffect, useState, useRef, Suspense } from "react";
 import { useSearchParams } from "next/navigation";
-import { api, sendChat, uploadAudio, getSettings } from "@/lib/api";
+import { sendChat, uploadAudio, getSettings, startInterview, InterviewConfig } from "@/lib/api";
 import { motion, AnimatePresence } from "framer-motion";
 import { Mic, MicOff, Video, VideoOff, PhoneOff } from "lucide-react";
 import { useRouter } from "next/navigation";
@@ -20,11 +20,13 @@ const SpeechRecognition = typeof window !== 'undefined' ? (window as any).webkit
 function InterviewContent() {
     const router = useRouter();
     const searchParams = useSearchParams();
-    const sessionId = searchParams.get("session_id");
+    const sessionIdParam = searchParams.get("session_id");
+    const [sessionId, setSessionId] = useState<string | null>(sessionIdParam);
     const [messages, setMessages] = useState<Message[]>([]);
     const [input, setInput] = useState("");
     const [loading, setLoading] = useState(false);
-    const [isCompleted, setIsCompleted] = useState(false);
+    const [pendingConfig, setPendingConfig] = useState<InterviewConfig | null>(null);
+    const [joining, setJoining] = useState(false);
 
     // Call State
     const [hasJoined, setHasJoined] = useState(false);
@@ -55,6 +57,21 @@ function InterviewContent() {
     useEffect(() => {
         if (typeof window !== 'undefined') {
             synthesisRef.current = window.speechSynthesis;
+        }
+    }, []);
+
+    useEffect(() => {
+        if (sessionIdParam) setSessionId(sessionIdParam);
+    }, [sessionIdParam]);
+
+    useEffect(() => {
+        if (typeof window === "undefined") return;
+        const raw = sessionStorage.getItem("pendingInterviewConfig");
+        if (!raw) return;
+        try {
+            setPendingConfig(JSON.parse(raw));
+        } catch {
+            sessionStorage.removeItem("pendingInterviewConfig");
         }
     }, []);
 
@@ -111,9 +128,33 @@ function InterviewContent() {
 
     // Handle Join Call
     const handleJoinCall = async () => {
+        setJoining(true);
         try {
             // Request immersive permissions
             const stream = await navigator.mediaDevices.getUserMedia({ video: true, audio: true });
+
+            let activeSessionId = sessionId;
+            if (!activeSessionId) {
+                const config = pendingConfig;
+                if (!config) {
+                    alert("No interview setup found. Please configure your interview first.");
+                    router.push("/setup");
+                    return;
+                }
+
+                const data = await startInterview(config);
+                activeSessionId = data.session_id;
+                setSessionId(activeSessionId);
+                if (data.message) {
+                    setInitialMessage(data.message);
+                    setMessages([{ role: "model", content: data.message }]);
+                }
+                if (typeof window !== "undefined") {
+                    sessionStorage.removeItem("pendingInterviewConfig");
+                }
+                router.replace(`/interview?session_id=${activeSessionId}`);
+            }
+
             setHasJoined(true);
             setIsMicOn(true);
             setPermissionError(false);
@@ -136,6 +177,8 @@ function InterviewContent() {
         } catch (err) {
             console.error("Permission denied:", err);
             setPermissionError(true);
+        } finally {
+            setJoining(false);
         }
     };
 
@@ -367,25 +410,28 @@ function InterviewContent() {
 
     if (!hasJoined) {
         return (
-            <div className="relative h-screen w-full bg-black text-white flex flex-col items-center justify-center overflow-hidden font-sans">
-                <div className="absolute inset-0 bg-gradient-to-br from-indigo-900/40 via-purple-900/20 to-black z-0" />
-
-                <div className="relative z-10 w-full max-w-md p-8 flex flex-col items-center text-center">
-                    <div className="w-32 h-32 rounded-full bg-gradient-to-t from-gray-800 to-gray-700 shadow-2xl flex items-center justify-center mb-8 ring-1 ring-white/10">
-                        <Video className="w-12 h-12 text-white/80" />
+            <div className="min-h-screen bg-background text-foreground pt-32 pb-20">
+                <div className="max-w-7xl mx-auto px-6 lg:px-8">
+                    <div className="max-w-lg mx-auto rounded-[32px] border border-border/60 bg-card dark:bg-[#0C0C0C] p-10 text-center shadow-sm">
+                        <div className="w-24 h-24 rounded-full bg-secondary dark:bg-[#111] border border-border/60 mx-auto flex items-center justify-center mb-6">
+                            <Video className="w-9 h-9 text-blue-500" />
+                        </div>
+                        <h1 className="text-4xl font-bold tracking-tight mb-2">Video Interview</h1>
+                        <p className="text-muted-foreground mb-8 text-lg">Join the session to begin.</p>
+                        <button
+                            onClick={handleJoinCall}
+                            disabled={joining}
+                            className="w-full h-12 rounded-full bg-primary text-primary-foreground font-semibold transition-all hover:opacity-90 disabled:opacity-60"
+                        >
+                            {joining ? "Joining..." : "Join Interview"}
+                        </button>
+                        {permissionError && (
+                            <p className="mt-4 text-destructive text-sm font-medium">Please allow camera and microphone access.</p>
+                        )}
+                        <Link href="/setup" className="mt-6 inline-block text-muted-foreground hover:text-foreground transition-colors text-sm">
+                            Cancel
+                        </Link>
                     </div>
-                    <h1 className="text-4xl font-light tracking-tight text-white mb-2">Video Interview</h1>
-                    <p className="text-white/50 mb-10 text-lg font-light">Join the session to begin.</p>
-                    <button
-                        onClick={handleJoinCall}
-                        className="group relative w-full py-4 rounded-full bg-white text-black font-semibold text-lg transition-all hover:scale-[1.02] active:scale-[0.98] shadow-[0_0_40px_-10px_rgba(255,255,255,0.3)]"
-                    >
-                        Join Now
-                    </button>
-                    {permissionError && (
-                        <p className="mt-4 text-red-400 text-sm font-medium">Please allow camera & microphone access.</p>
-                    )}
-                    <Link href="/" className="mt-8 text-white/40 hover:text-white transition-colors text-sm">Cancel</Link>
                 </div>
             </div>
         );
@@ -532,7 +578,7 @@ function InterviewContent() {
                         {isVideoOn ? <Video className="w-6 h-6" /> : <VideoOff className="w-6 h-6" />}
                     </button>
                     <div className="w-[1px] h-8 bg-white/10 mx-2" />
-                    <Link href={`/report?session_id=${sessionId}`}>
+                    <Link href={`/report?session_id=${sessionId || ""}`}>
                         <button className="h-14 px-8 rounded-full bg-red-500 hover:bg-red-600 text-white font-medium transition-all flex items-center gap-2">
                             <PhoneOff className="w-5 h-5" />
                             <span className="hidden sm:inline">End</span>

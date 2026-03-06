@@ -15,7 +15,7 @@ import {
   Zap,
 } from "lucide-react";
 
-import { getSettings, startInterview } from "@/lib/api";
+import { getSettings } from "@/lib/api";
 import { useAuth } from "@/components/AuthProvider";
 
 const ROLES = ["Software Engineer", "Frontend", "Backend", "Full Stack", "Data Scientist", "Product Manager", "DevOps"];
@@ -105,11 +105,10 @@ export default function SetupPage() {
 
     setLoading(true);
     try {
-      const data = await startInterview(config);
-      if (typeof window !== "undefined" && data?.session_id && data?.message) {
-        sessionStorage.setItem(`initialInterviewMessage:${data.session_id}`, data.message);
+      if (typeof window !== "undefined") {
+        sessionStorage.setItem("pendingInterviewConfig", JSON.stringify(config));
       }
-      router.push(`/interview?session_id=${data.session_id}`);
+      router.push("/interview");
     } catch {
       alert("Connection error.");
     } finally {

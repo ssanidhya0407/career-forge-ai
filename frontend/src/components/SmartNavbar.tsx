@@ -69,6 +69,10 @@ export function SmartNavbar() {
         router.push("/");
     };
 
+    if (pathname?.startsWith("/interview")) {
+        return null;
+    }
+
     return (
         <motion.nav className="fixed top-8 inset-x-0 z-50 flex justify-center pointer-events-none">
             <motion.div

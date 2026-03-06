@@ -19,7 +19,7 @@ import {
 } from "lucide-react";
 
 import { useAuth } from "@/components/AuthProvider";
-import { getInterviews, getDashboardStats, InterviewRecord, DashboardStats, startInterview } from "@/lib/api";
+import { getInterviews, getDashboardStats, InterviewRecord, DashboardStats } from "@/lib/api";
 
 type RingKey = "communication" | "technical" | "problem_solving" | "culture_fit";
 
@@ -54,11 +54,10 @@ export default function DashboardPage() {
             const config = JSON.parse(pending);
             localStorage.removeItem("pendingSessionConfig");
             setIsLoading(true);
-            const data = await startInterview(config);
-            if (typeof window !== "undefined" && data?.session_id && data?.message) {
-                sessionStorage.setItem(`initialInterviewMessage:${data.session_id}`, data.message);
+            if (typeof window !== "undefined") {
+                sessionStorage.setItem("pendingInterviewConfig", JSON.stringify(config));
             }
-            router.push(`/interview?session_id=${data.session_id}`);
+            router.push("/interview");
         } catch (error) {
             console.error("Failed to start pending session", error);
         }
